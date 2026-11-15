@@ -6,6 +6,7 @@ import android.content.Intent
 import android.net.Uri
 import android.provider.ContactsContract
 import android.provider.Telephony
+import androidx.core.content.ContextCompat
 
 class SmsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -34,7 +35,7 @@ class SmsReceiver : BroadcastReceiver() {
                     putExtra("INTERVAL_MINUTES", intervalMinutes)
                     putExtra("SENDER", lahettajaNumero)
                 }
-                context.startService(serviceIntent)
+                ContextCompat.startForegroundService(context, serviceIntent)
             }
         }
     }
