@@ -36,7 +36,7 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == "KUITTAA") {
             lopetaHalytys()
-            return START_NOT_STICKY
+            return Service.START_NOT_STICKY
         }
 
         viestiTeksti = intent?.getStringExtra("MESSAGE") ?: ""
@@ -47,7 +47,7 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
         naytaKuittausIlmoitus()
         handler.postDelayed({ puhuLujallaAanella() }, 1000)
 
-        return START_NOT_STICKY
+        return Service.START_NOT_STICKY
     }
 
     private fun puhuLujallaAanella() {
@@ -102,7 +102,12 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
 
     private fun lopetaHalytys() {
         handler.removeCallbacksAndMessages(null)
-        stopForeground(STOP_FOREGROUND_REMOVE)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(Service.STOP_FOREGROUND_REMOVE)
+        } else {
+            @Suppress("DEPRECATION")
+            stopForeground(true)
+        }
         stopSelf()
     }
 

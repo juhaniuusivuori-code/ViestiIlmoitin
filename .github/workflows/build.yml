@@ -25,9 +25,10 @@ jobs:
         gradle-version: '8.5'
 
     - name: Käännä APK
-      run: gradle assembleDebug --stacktrace
+      run: gradle assembleDebug --stacktrace --info
 
     - name: Tallenna valmis APK ladattavaksi
+      if: success()
       uses: actions/upload-artifact@v4
       with:
         name: ViestiIlmoitin-Valmis-APK
