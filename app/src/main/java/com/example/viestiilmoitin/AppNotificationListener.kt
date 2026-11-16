@@ -50,6 +50,7 @@ class AppNotificationListener : NotificationListenerService() {
 
         // 1. WHATSAPP
         if (pkg == "com.whatsapp" || pkg == "com.whatsapp.w4b") {
+            if (!prefs.getBoolean("enabled_whatsapp", true)) return
             if (currentTime - lastWhatsAppTime > 3000) {
                 lastWhatsAppTime = currentTime
                 val baseText = prefs.getString("whatsapp_text", "WHATSUP VIESTI") ?: "WHATSUP VIESTI"
@@ -66,6 +67,7 @@ class AppNotificationListener : NotificationListenerService() {
         }
         // 2. MESSENGER
         else if (pkg == "com.facebook.orca" || pkg == "com.facebook.mlite") {
+            if (!prefs.getBoolean("enabled_messenger", true)) return
             if (currentTime - lastMessengerTime > 3000) {
                 lastMessengerTime = currentTime
                 val baseText = prefs.getString("messenger_text", "MESSENGER VIESTI") ?: "MESSENGER VIESTI"
@@ -82,6 +84,7 @@ class AppNotificationListener : NotificationListenerService() {
         }
         // 3. SÄHKÖPOSTI (Gmail, Outlook, Samsung Mail, Proton, Yahoo jne.)
         else if (onkoSahkoposti(pkg, notification)) {
+            if (!prefs.getBoolean("enabled_email", true)) return
             if (currentTime - lastEmailTime > 3000) {
                 lastEmailTime = currentTime
                 val emailPrefix = prefs.getString("email_text", "SÄHKÖPOSTI") ?: "SÄHKÖPOSTI"

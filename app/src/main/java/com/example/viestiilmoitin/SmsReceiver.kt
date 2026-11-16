@@ -13,7 +13,8 @@ class SmsReceiver : BroadcastReceiver() {
         if (intent.action == Telephony.Sms.Intents.SMS_RECEIVED_ACTION) {
             val prefs = context.getSharedPreferences("Asetukset", Context.MODE_PRIVATE)
             val isEnabled = prefs.getBoolean("app_enabled", true)
-            if (!isEnabled) {
+            val isSmsEnabled = prefs.getBoolean("enabled_sms", true)
+            if (!isEnabled || !isSmsEnabled) {
                 return
             }
 

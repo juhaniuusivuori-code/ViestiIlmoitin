@@ -29,6 +29,11 @@
             android:exported="false"
             android:label="Viestiloki" />
 
+        <activity
+            android:name=".AsetuksetActivity"
+            android:exported="false"
+            android:label="Asetukset" />
+
         <receiver
             android:name=".SmsReceiver"
             android:exported="true"

@@ -260,47 +260,32 @@
         android:id="@+id/btnTest"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="50dp"
+        android:minHeight="54dp"
         android:paddingTop="6dp"
         android:paddingBottom="6dp"
         android:text="KOKEILE ÄÄNTÄ"
-        android:textSize="15sp"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:backgroundTint="#00897B"
         android:textColor="#FFFFFF"
-        android:layout_marginBottom="3dp" />
+        android:layout_marginBottom="4dp" />
 
-    <!-- 8. Ohje (Korkea palkki, ilman hymiöitä) -->
+    <!-- 8. Asetukset-sivun avauspainike (OHJE, LOKI ja ohjelmakohtaiset PÄÄLLÄ/POIS-kytkimet) -->
     <Button
-        android:id="@+id/btnHelp"
+        android:id="@+id/btnSettings"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="50dp"
+        android:minHeight="54dp"
         android:paddingTop="6dp"
         android:paddingBottom="6dp"
-        android:text="O H J E"
-        android:textSize="15sp"
+        android:text="A S E T U K S E T"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:backgroundTint="#37474F"
         android:textColor="#FFFFFF"
-        android:layout_marginBottom="3dp" />
+        android:layout_marginBottom="6dp" />
 
-    <!-- 9. Loki (Korkea palkki, ilman hymiöitä) -->
-    <Button
-        android:id="@+id/btnLog"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="50dp"
-        android:paddingTop="6dp"
-        android:paddingBottom="6dp"
-        android:text="L O K I"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        android:backgroundTint="#546E7A"
-        android:textColor="#FFFFFF"
-        android:layout_marginBottom="3dp" />
-
-    <!-- 10. VOLUME liukusäädin lokin alapuolella -->
+    <!-- 9. VOLUME liukusäädin -->
     <TextView
         android:id="@+id/tvVolumeLabel"
         android:layout_width="match_parent"
@@ -314,17 +299,17 @@
     <SeekBar
         android:id="@+id/seekBarVolume"
         android:layout_width="match_parent"
-        android:layout_height="24dp"
+        android:layout_height="26dp"
         android:max="100"
         android:progress="100"
-        android:layout_marginBottom="4dp" />
+        android:layout_marginBottom="6dp" />
 
-    <!-- 11. ALIMMAISEKSI: Tallenna asetukset VOLUMEN alle (Korkea ja selkeä palkki, ilman hymiöitä) -->
+    <!-- 10. ALIMMAISEKSI: Tallenna asetukset VOLUMEN alle (Korkea ja selkeä palkki, ilman hymiöitä) -->
     <Button
         android:id="@+id/btnSave"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="52dp"
+        android:minHeight="54dp"
         android:paddingTop="6dp"
         android:paddingBottom="6dp"
         android:text="TALLENNA ASETUKSET"

@@ -35,8 +35,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var btnNotificationPermission: Button
     private lateinit var tvVolumeLabel: TextView
     private lateinit var seekBarVolume: SeekBar
-    private lateinit var btnHelp: Button
-    private lateinit var btnLog: Button
+    private lateinit var btnSettings: Button
     private var tts: TextToSpeech? = null
 
     private val masterSwitchHandler = Handler(Looper.getMainLooper())
@@ -58,8 +57,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         btnNotificationPermission = findViewById(R.id.btnNotificationPermission)
         tvVolumeLabel = findViewById(R.id.tvVolumeLabel)
         seekBarVolume = findViewById(R.id.seekBarVolume)
-        btnHelp = findViewById(R.id.btnHelp)
-        btnLog = findViewById(R.id.btnLog)
+        btnSettings = findViewById(R.id.btnSettings)
 
         tts = TextToSpeech(this, this)
 
@@ -91,12 +89,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             soitaTestiAani()
         }
 
-        btnHelp.setOnClickListener {
-            naytaOhjeet()
-        }
-
-        btnLog.setOnClickListener {
-            startActivity(Intent(this, LokiActivity::class.java))
+        btnSettings.setOnClickListener {
+            startActivity(Intent(this, AsetuksetActivity::class.java))
         }
     }
 
