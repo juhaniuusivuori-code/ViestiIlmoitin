@@ -2,13 +2,17 @@ package com.example.viestiilmoitin
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.speech.tts.TextToSpeech
+import android.view.View
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.app.NotificationManagerCompat
 import java.util.Locale
 
 class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
@@ -16,8 +20,11 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var editPrefix: EditText
     private lateinit var editSuffix: EditText
     private lateinit var editUnknown: EditText
+    private lateinit var editWhatsApp: EditText
+    private lateinit var editMessenger: EditText
     private lateinit var spinnerRepeats: Spinner
     private lateinit var spinnerInterval: Spinner
+    private lateinit var btnNotificationPermission: Button
     private var tts: TextToSpeech? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,14 +34,23 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         editPrefix = findViewById(R.id.editPrefix)
         editSuffix = findViewById(R.id.editSuffix)
         editUnknown = findViewById(R.id.editUnknown)
+        editWhatsApp = findViewById(R.id.editWhatsApp)
+        editMessenger = findViewById(R.id.editMessenger)
         spinnerRepeats = findViewById(R.id.spinnerRepeats)
         spinnerInterval = findViewById(R.id.spinnerInterval)
+        btnNotificationPermission = findViewById(R.id.btnNotificationPermission)
 
         tts = TextToSpeech(this, this)
 
         pyydaLuvat()
         alustaValikot()
         lataaAsetukset()
+
+        btnNotificationPermission.setOnClickListener {
+            // Avataan suoraan Androidin asetusruutu, josta kytketään ilmoituslupa päälle
+            val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
+            startActivity(intent)
+        }
 
         findViewById<Button>(R.id.btnSave).setOnClickListener {
             tallennaAsetukset()
@@ -43,6 +59,22 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         findViewById<Button>(R.id.btnTest).setOnClickListener {
             soitaTestiAani()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        paivitaIlmoitusLuvanTila()
+    }
+
+    private fun paivitaIlmoitusLuvanTila() {
+        val onkoLupa = NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
+        if (onkoLupa) {
+            btnNotificationPermission.text = "✅ WHATSAPP JA MESSENGER AKTIIVISENA"
+            btnNotificationPermission.setBackgroundColor(android.graphics.Color.parseColor("#388E3C"))
+        } else {
+            btnNotificationPermission.text = "🔔 OTA WHATSAPP JA MESSENGER KÄYTTÖÖN"
+            btnNotificationPermission.setBackgroundColor(android.graphics.Color.parseColor("#FF8F00"))
         }
     }
 
@@ -59,6 +91,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         editPrefix.setText(prefs.getString("prefix", "VIESTI TULI "))
         editSuffix.setText(prefs.getString("suffix", ""))
         editUnknown.setText(prefs.getString("unknown", "VIESTI NUMEROSTA "))
+        editWhatsApp.setText(prefs.getString("whatsapp_text", "WHATSUP VIESTI"))
+        editMessenger.setText(prefs.getString("messenger_text", "MESSENGER VIESTI"))
         spinnerRepeats.setSelection(prefs.getInt("repeats", 3))
         spinnerInterval.setSelection(prefs.getInt("interval", 1))
     }
@@ -68,6 +102,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         prefs.putString("prefix", editPrefix.text.toString())
         prefs.putString("suffix", editSuffix.text.toString())
         prefs.putString("unknown", editUnknown.text.toString())
+        prefs.putString("whatsapp_text", editWhatsApp.text.toString())
+        prefs.putString("messenger_text", editMessenger.text.toString())
         prefs.putInt("repeats", spinnerRepeats.selectedItemPosition)
         prefs.putInt("interval", spinnerInterval.selectedItemPosition)
         prefs.apply()
@@ -78,7 +114,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolume, 0)
 
-        val testiLause = "${editPrefix.text} Pekka Virtanen ${editSuffix.text}".trim()
+        val testiLause = "${editPrefix.text} Pekka Virtanen. ${editWhatsApp.text}!".trim()
         tts?.speak(testiLause, TextToSpeech.QUEUE_FLUSH, null, "TEST_ID")
     }
 
