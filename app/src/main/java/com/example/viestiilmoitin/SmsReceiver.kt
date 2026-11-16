@@ -29,6 +29,10 @@ class SmsReceiver : BroadcastReceiver() {
                     "$unknown $lahettajaNumero"
                 }
 
+                // Lisätään merkintä viestilokiin
+                val tallennettavaNimi = nimi ?: lahettajaNumero
+                LogDatabaseHelper(context).lisaaMerkinta(tallennettavaNimi, "Tekstiviesti")
+
                 val serviceIntent = Intent(context, AlertService::class.java).apply {
                     putExtra("MESSAGE", puhuttavaViesti)
                     putExtra("REPEATS_LEFT", repeats)

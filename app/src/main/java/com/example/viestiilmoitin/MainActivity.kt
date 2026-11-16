@@ -22,10 +22,12 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var editUnknown: EditText
     private lateinit var editWhatsApp: EditText
     private lateinit var editMessenger: EditText
+    private lateinit var editEmail: EditText
     private lateinit var spinnerRepeats: Spinner
     private lateinit var spinnerInterval: Spinner
     private lateinit var btnNotificationPermission: Button
     private lateinit var btnHelp: Button
+    private lateinit var btnLog: Button
     private var tts: TextToSpeech? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,10 +39,12 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         editUnknown = findViewById(R.id.editUnknown)
         editWhatsApp = findViewById(R.id.editWhatsApp)
         editMessenger = findViewById(R.id.editMessenger)
+        editEmail = findViewById(R.id.editEmail)
         spinnerRepeats = findViewById(R.id.spinnerRepeats)
         spinnerInterval = findViewById(R.id.spinnerInterval)
         btnNotificationPermission = findViewById(R.id.btnNotificationPermission)
         btnHelp = findViewById(R.id.btnHelp)
+        btnLog = findViewById(R.id.btnLog)
 
         tts = TextToSpeech(this, this)
 
@@ -65,6 +69,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         btnHelp.setOnClickListener {
             naytaOhjeet()
         }
+
+        btnLog.setOnClickListener {
+            startActivity(Intent(this, LokiActivity::class.java))
+        }
     }
 
     override fun onResume() {
@@ -75,7 +83,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun paivitaIlmoitusLuvanTila() {
         val onkoLupa = NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
         if (onkoLupa) {
-            btnNotificationPermission.text = "✅ ILMOITUSKUUNTELU ON PÄÄLLÄ\n(WhatsApp ja Messenger aktivoitu)"
+            btnNotificationPermission.text = "✅ ILMOITUSKUUNTELU ON PÄÄLLÄ\n(WhatsApp, Messenger ja Sähköposti aktivoitu)"
             btnNotificationPermission.setBackgroundColor(android.graphics.Color.parseColor("#388E3C"))
         } else {
             btnNotificationPermission.text = "🔔 SALLI ILMOITUKSET\n(Paina tästä ja valitse: Viesti-Ilmoitin)"
@@ -98,6 +106,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         editUnknown.setText(prefs.getString("unknown", "VIESTI NUMEROSTA "))
         editWhatsApp.setText(prefs.getString("whatsapp_text", "WHATSUP VIESTI"))
         editMessenger.setText(prefs.getString("messenger_text", "MESSENGER VIESTI"))
+        editEmail.setText(prefs.getString("email_text", "SÄHKÖPOSTI"))
         spinnerRepeats.setSelection(prefs.getInt("repeats", 3))
         spinnerInterval.setSelection(prefs.getInt("interval", 1))
     }
@@ -109,6 +118,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         prefs.putString("unknown", editUnknown.text.toString())
         prefs.putString("whatsapp_text", editWhatsApp.text.toString())
         prefs.putString("messenger_text", editMessenger.text.toString())
+        prefs.putString("email_text", editEmail.text.toString())
         prefs.putInt("repeats", spinnerRepeats.selectedItemPosition)
         prefs.putInt("interval", spinnerInterval.selectedItemPosition)
         prefs.apply()
@@ -119,55 +129,67 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolume, 0)
 
-        val testiLause = "${editPrefix.text} Pekka Virtanen. ${editWhatsApp.text}!".trim()
+        val testiLause = "${editPrefix.text} Pekka Virtanen. ${editWhatsApp.text} Peksu. ${editEmail.text} Matti.".trim()
         tts?.speak(testiLause, TextToSpeech.QUEUE_FLUSH, null, "TEST_ID")
     }
 
     private fun naytaOhjeet() {
         val ohjeTeksti = """
             Tervetuloa käyttämään Viesti-Ilmoitinta!
-            Tämä sovellus lukee saapuvat tekstiviestit, WhatsApp- ja Messenger-viestit ääneen suurella äänellä.
+            Tämä sovellus ilmoittaa saapuvista tekstiviesteistä, WhatsApp-, Messenger- ja sähköpostiviesteistä suurella äänellä.
 
             ━━━━━━━━━━━━━━━━━━━━━━
             1. TÄRKEÄT LUVAT (ASETUKSET)
             ━━━━━━━━━━━━━━━━━━━━━━
             • TEKSTIVIESTIT JA YHTEYSTIEDOT:
               Puhelin kysyy näitä automaattisesti. Valitse aina "Salli".
-              (Tarvitaan jotta sovellus tietää viestin saapuneen ja löytää soittajan nimen osoitekirjasta).
+              (Tarvitaan jotta sovellus havaitsee saapuvan tekstiviestin ja löytää nimen puhelimen osoitekirjasta).
 
-            • WHATSAPP JA MESSENGER:
+            • WHATSAPP, MESSENGER JA SÄHKÖPOSTI:
               1. Paina päänäytön oranssia painiketta "SALLI ILMOITUKSET".
               2. Puhelin siirtyy laitteen asetuksiin. Etsi listalta "Viesti-Ilmoitin".
               3. Napauta sitä ja kytke lupa päälle (Salli).
               4. Kun palaat sovellukseen, painike muuttuu vihreäksi.
 
-            * VINKKI (jos puhelin valittaa 'Rajoitettu asetus'):
-              Mene: Puhelimen Asetukset ➔ Sovellukset ➔ Viesti-Ilmoitin ➔ Paina oikean yläkulman 3 pistettä ➔ Valitse "Salli rajoitetut asetukset". Tämän jälkeen kytkimen saa päälle.
+            * VINKKI (jos puhelin ilmoittaa 'Rajoitettu asetus'):
+              Mene: Puhelimen Asetukset ➔ Sovellukset ➔ Viesti-Ilmoitin ➔ Paina oikeasta yläkulmasta 3 pistettä ➔ Valitse "Salli rajoitetut asetukset". Tämän jälkeen luvan saa heti kytkettyä päälle.
 
             ━━━━━━━━━━━━━━━━━━━━━━
             2. VIESTIEN HUUTOLAUSEET
             ━━━━━━━━━━━━━━━━━━━━━━
-            • ENNEN NIMEÄ: Esim. "VIESTI TULI "
-            • NIMEN JÄLKEEN: Esim. " LAITTOI VIESTIN" (tai jätä tyhjäksi).
-              Jos osoitekirjassa lukee "Peksu", puhelin huutaa: "VIESTI TULI Peksu".
-            • TUNTEMATON NUMERO: Mitä huudetaan, jos numeroa ei löydy osoitekirjasta (esim. "VIESTI NUMEROSTA ").
-            • WHATSAPP JA MESSENGER: Mitä huudetaan, kun näihin sovelluksiin tulee viesti (oletuksena "WHATSUP VIESTI" ja "MESSENGER VIESTI").
+            • TEKSTIVIESTI:
+              - Ennen nimeä: Esim. "VIESTI TULI "
+              - Nimen jälkeen: Esim. " LAITTOI VIESTIN" (tai jätä tyhjäksi).
+              - Tuntematon numero: Mitä huudetaan, jos numeroa ei löydy osoitekirjasta (esim. "VIESTI NUMEROSTA ").
+              (Voit muuttaa henkilön lempinimen suoraan puhelimen omaan osoitekirjaan).
+
+            • WHATSAPP JA MESSENGER:
+              - Jos lähettäjä löytyy puhelimen osoitekirjasta, sovellus ilmoittaa nimen (esim. "WHATSUP VIESTI Peksu").
+              - Jos lähettäjää ei ole luettelossa, kuuluu vain "WHATSUP VIESTI" tai "MESSENGER VIESTI".
+
+            • SÄHKÖPOSTI:
+              - Sovellus ilmoittaa saapuneesta sähköpostista ja sen lähettäjästä (esim. "SÄHKÖPOSTI Matti Virtanen").
 
             ━━━━━━━━━━━━━━━━━━━━━━
             3. TOISTO JA KUITTAUS
             ━━━━━━━━━━━━━━━━━━━━━━
             • TOISTOKERRAT JA -VÄLI:
-              Valitse kuinka monta kertaa (1-10) ja kuinka usein (1-10 min) viesti huudetaan uudelleen, jos et heti huomaa sitä.
+              Valitse kuinka monta kertaa (1-10) ja kuinka usein (1-10 min) ilmoitus toistetaan, jos viestiä ei heti huomata.
             • MITEN TOISTO SAMMUTETAAN:
-              - SMS: Avaa viesti normaalisti puhelimessa.
-              - WhatsApp/Messenger: Avaa viesti tai pyyhkäise viesti-ilmoitus pois ruudulta.
-              - Kaikki viestit: Voit myös milloin vain painaa puhelimen ruudulle tulevasta ilmoituksesta isoa nappia "KUITTAA KUULLUKSI".
+              Viestin toistohälytys kuittaantuu ja sammuu automaattisesti, kun viesti avataan tai pyyhkäistään pois.
 
             ━━━━━━━━━━━━━━━━━━━━━━
-            4. TALLENNUS JA KOKEILU
+            4. VIESTILOKI
             ━━━━━━━━━━━━━━━━━━━━━━
-            • Paina "KOKEILE ÄÄNTÄ" testataksesi kaiuttimen ääntä.
-            • Muutosten jälkeen muista aina painaa "TALLENNA"!
+            • Paina päänäytön alalaidasta "LOKI"-painiketta.
+            • Lokista näet kaikki viestien lähettäjät, kuinka monta viestiä kukin on lähettänyt yhteensä ja minä päivinä.
+            • Lokin voi tyhjentää pitämällä "NOLLAA LOKI" -painiketta pohjassa yhden sekunnin ajan (estää vahinkopainallukset).
+
+            ━━━━━━━━━━━━━━━━━━━━━━
+            5. TALLENNUS JA KOKEILU
+            ━━━━━━━━━━━━━━━━━━━━━━
+            • Paina "KOKEILE ÄÄNTÄ" testataksesi ääntä.
+            • Muutosten jälkeen paina aina "TALLENNA ASETUKSET"!
         """.trimIndent()
 
         val scrollView = ScrollView(this).apply {
@@ -184,7 +206,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         AlertDialog.Builder(this)
             .setTitle("⚙️ OHJE JA KÄYTTÖOPAS")
             .setView(scrollView)
-            .setPositiveButton("SELKÄ, SULJE OHJE") { dialog, _ ->
+            .setPositiveButton("SULJE OHJE") { dialog, _ ->
                 dialog.dismiss()
             }
             .show()

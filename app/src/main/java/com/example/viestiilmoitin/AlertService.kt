@@ -2,7 +2,6 @@ package com.example.viestiilmoitin
 
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -73,9 +72,9 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
     }
 
     private fun onkoViestiLuettu(): Boolean {
-        // WhatsApp ja Messenger eivät ole tekstiviestejä, niiden kuittaus hoidetaan
-        // ilmoituksen avaamisella/poistamisella tai "Kuittaa"-painikkeella
-        if (lahettaja.startsWith("com.")) {
+        // Sovellusten (WhatsApp, Messenger, Sähköposti) ilmoitukset kuittaantuvat
+        // kun käyttäjä avaa viestin tai pyyhkii sen pois (onNotificationRemoved)
+        if (lahettaja.startsWith("com.") || lahettaja.startsWith("net.")) {
             return false
         }
 
@@ -91,15 +90,11 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
     }
 
     private fun naytaKuittausIlmoitus() {
-        val kuittaaIntent = Intent(this, AlertService::class.java).apply { action = "KUITTAA" }
-        val kuittaaPendingIntent = PendingIntent.getService(this, 0, kuittaaIntent, PendingIntent.FLAG_IMMUTABLE)
-
         val notification = NotificationCompat.Builder(this, "HalytysKanava")
             .setContentTitle("Saapui viesti!")
             .setContentText(viestiTeksti)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .addAction(android.R.drawable.ic_menu_close_clear_cancel, "KUITTAA KUULLUKSI", kuittaaPendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()
 

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="#F8F9FA">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="VIESTILOKI"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textColor="#1A237E"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Nollaa loki -painike (1 sekunnin viivevahvistus) -->
+    <Button
+        android:id="@+id/btnResetLog"
+        android:layout_width="match_parent"
+        android:layout_height="48dp"
+        android:text="🗑️  NOLLAA LOKI (Pidä pohjassa 1 s)"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:backgroundTint="#D32F2F"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Lokin sisältö vieritettävänä -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#FFFFFF"
+        android:padding="12dp"
+        android:layout_marginBottom="12dp">
+
+        <TextView
+            android:id="@+id/tvLogContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:lineSpacingExtra="4dp"
+            android:textColor="#212121"
+            android:text="Ladataan lokia..." />
+    </ScrollView>
+
+    <!-- Palaa takaisin -nappi -->
+    <Button
+        android:id="@+id/btnBack"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:text="⬅️   PALAA TAKAISIN"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:backgroundTint="#37474F"
+        android:textColor="#FFFFFF" />
+
+</LinearLayout>

@@ -23,6 +23,11 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".LokiActivity"
+            android:exported="false"
+            android:label="Viestiloki" />
+
         <receiver
             android:name=".SmsReceiver"
             android:exported="true"
