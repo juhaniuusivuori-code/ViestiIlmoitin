@@ -8,8 +8,8 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.speech.tts.TextToSpeech
-import android.view.View
 import android.widget.*
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationManagerCompat
@@ -25,6 +25,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var spinnerRepeats: Spinner
     private lateinit var spinnerInterval: Spinner
     private lateinit var btnNotificationPermission: Button
+    private lateinit var btnHelp: Button
     private var tts: TextToSpeech? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,6 +40,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         spinnerRepeats = findViewById(R.id.spinnerRepeats)
         spinnerInterval = findViewById(R.id.spinnerInterval)
         btnNotificationPermission = findViewById(R.id.btnNotificationPermission)
+        btnHelp = findViewById(R.id.btnHelp)
 
         tts = TextToSpeech(this, this)
 
@@ -47,7 +49,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         lataaAsetukset()
 
         btnNotificationPermission.setOnClickListener {
-            // Avataan suoraan Androidin asetusruutu, josta kytketään ilmoituslupa päälle
             val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
             startActivity(intent)
         }
@@ -59,6 +60,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         findViewById<Button>(R.id.btnTest).setOnClickListener {
             soitaTestiAani()
+        }
+
+        btnHelp.setOnClickListener {
+            naytaOhjeet()
         }
     }
 
@@ -73,7 +78,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             btnNotificationPermission.text = "✅ ILMOITUSKUUNTELU ON PÄÄLLÄ\n(WhatsApp ja Messenger aktivoitu)"
             btnNotificationPermission.setBackgroundColor(android.graphics.Color.parseColor("#388E3C"))
         } else {
-            btnNotificationPermission.text = "🔔 SALLI ILMOITUKSET\n(Paina tästä ja valitse listasta: Viesti-Ilmoitin)"
+            btnNotificationPermission.text = "🔔 SALLI ILMOITUKSET\n(Paina tästä ja valitse: Viesti-Ilmoitin)"
             btnNotificationPermission.setBackgroundColor(android.graphics.Color.parseColor("#FF8F00"))
         }
     }
@@ -116,6 +121,73 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         val testiLause = "${editPrefix.text} Pekka Virtanen. ${editWhatsApp.text}!".trim()
         tts?.speak(testiLause, TextToSpeech.QUEUE_FLUSH, null, "TEST_ID")
+    }
+
+    private fun naytaOhjeet() {
+        val ohjeTeksti = """
+            Tervetuloa käyttämään Viesti-Ilmoitinta!
+            Tämä sovellus lukee saapuvat tekstiviestit, WhatsApp- ja Messenger-viestit ääneen suurella äänellä.
+
+            ━━━━━━━━━━━━━━━━━━━━━━
+            1. TÄRKEÄT LUVAT (ASETUKSET)
+            ━━━━━━━━━━━━━━━━━━━━━━
+            • TEKSTIVIESTIT JA YHTEYSTIEDOT:
+              Puhelin kysyy näitä automaattisesti. Valitse aina "Salli".
+              (Tarvitaan jotta sovellus tietää viestin saapuneen ja löytää soittajan nimen osoitekirjasta).
+
+            • WHATSAPP JA MESSENGER:
+              1. Paina päänäytön oranssia painiketta "SALLI ILMOITUKSET".
+              2. Puhelin siirtyy laitteen asetuksiin. Etsi listalta "Viesti-Ilmoitin".
+              3. Napauta sitä ja kytke lupa päälle (Salli).
+              4. Kun palaat sovellukseen, painike muuttuu vihreäksi.
+
+            * VINKKI (jos puhelin valittaa 'Rajoitettu asetus'):
+              Mene: Puhelimen Asetukset ➔ Sovellukset ➔ Viesti-Ilmoitin ➔ Paina oikean yläkulman 3 pistettä ➔ Valitse "Salli rajoitetut asetukset". Tämän jälkeen kytkimen saa päälle.
+
+            ━━━━━━━━━━━━━━━━━━━━━━
+            2. VIESTIEN HUUTOLAUSEET
+            ━━━━━━━━━━━━━━━━━━━━━━
+            • ENNEN NIMEÄ: Esim. "VIESTI TULI "
+            • NIMEN JÄLKEEN: Esim. " LAITTOI VIESTIN" (tai jätä tyhjäksi).
+              Jos osoitekirjassa lukee "Peksu", puhelin huutaa: "VIESTI TULI Peksu".
+            • TUNTEMATON NUMERO: Mitä huudetaan, jos numeroa ei löydy osoitekirjasta (esim. "VIESTI NUMEROSTA ").
+            • WHATSAPP JA MESSENGER: Mitä huudetaan, kun näihin sovelluksiin tulee viesti (oletuksena "WHATSUP VIESTI" ja "MESSENGER VIESTI").
+
+            ━━━━━━━━━━━━━━━━━━━━━━
+            3. TOISTO JA KUITTAUS
+            ━━━━━━━━━━━━━━━━━━━━━━
+            • TOISTOKERRAT JA -VÄLI:
+              Valitse kuinka monta kertaa (1-10) ja kuinka usein (1-10 min) viesti huudetaan uudelleen, jos et heti huomaa sitä.
+            • MITEN TOISTO SAMMUTETAAN:
+              - SMS: Avaa viesti normaalisti puhelimessa.
+              - WhatsApp/Messenger: Avaa viesti tai pyyhkäise viesti-ilmoitus pois ruudulta.
+              - Kaikki viestit: Voit myös milloin vain painaa puhelimen ruudulle tulevasta ilmoituksesta isoa nappia "KUITTAA KUULLUKSI".
+
+            ━━━━━━━━━━━━━━━━━━━━━━
+            4. TALLENNUS JA KOKEILU
+            ━━━━━━━━━━━━━━━━━━━━━━
+            • Paina "KOKEILE ÄÄNTÄ" testataksesi kaiuttimen ääntä.
+            • Muutosten jälkeen muista aina painaa "TALLENNA"!
+        """.trimIndent()
+
+        val scrollView = ScrollView(this).apply {
+            setPadding(32, 24, 32, 24)
+        }
+        val textView = TextView(this).apply {
+            text = ohjeTeksti
+            textSize = 15f
+            setTextColor(android.graphics.Color.parseColor("#212121"))
+            setLineSpacing(4f, 1.15f)
+        }
+        scrollView.addView(textView)
+
+        AlertDialog.Builder(this)
+            .setTitle("⚙️ OHJE JA KÄYTTÖOPAS")
+            .setView(scrollView)
+            .setPositiveButton("SELKÄ, SULJE OHJE") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .show()
     }
 
     private fun pyydaLuvat() {
