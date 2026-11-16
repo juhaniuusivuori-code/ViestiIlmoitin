@@ -29,13 +29,11 @@ class AppNotificationListener : NotificationListenerService() {
         var kuulutusTeksti: String? = null
 
         if (pkg == "com.whatsapp" || pkg == "com.whatsapp.w4b") {
-            // Estetään tuplailmoitukset 3 sekunnin sisällä saman viestin osalta
             if (currentTime - lastWhatsAppTime > 3000) {
                 lastWhatsAppTime = currentTime
                 kuulutusTeksti = prefs.getString("whatsapp_text", "WHATSUP VIESTI") ?: "WHATSUP VIESTI"
             }
         } else if (pkg == "com.facebook.orca" || pkg == "com.facebook.mlite") {
-            // Estetään tuplailmoitukset 3 sekunnin sisällä
             if (currentTime - lastMessengerTime > 3000) {
                 lastMessengerTime = currentTime
                 kuulutusTeksti = prefs.getString("messenger_text", "MESSENGER VIESTI") ?: "MESSENGER VIESTI"
@@ -43,13 +41,28 @@ class AppNotificationListener : NotificationListenerService() {
         }
 
         if (kuulutusTeksti != null) {
+            val repeats = prefs.getInt("repeats", 3)
+            val intervalMinutes = prefs.getInt("interval", 1) + 1
+
             val serviceIntent = Intent(this, AlertService::class.java).apply {
                 putExtra("MESSAGE", kuulutusTeksti)
-                putExtra("REPEATS_LEFT", 0) // Sanotaan heti kerran lujalla äänellä
-                putExtra("INTERVAL_MINUTES", 1)
+                putExtra("REPEATS_LEFT", repeats)
+                putExtra("INTERVAL_MINUTES", intervalMinutes)
                 putExtra("SENDER", pkg)
             }
             ContextCompat.startForegroundService(this, serviceIntent)
+        }
+    }
+
+    override fun onNotificationRemoved(sbn: StatusBarNotification?) {
+        super.onNotificationRemoved(sbn)
+        val pkg = sbn?.packageName ?: return
+        // Jos käyttäjä avaa tai pyyhkii WhatsApp- tai Messenger-ilmoituksen pois, lopetetaan toistohälytys heti
+        if (pkg == "com.whatsapp" || pkg == "com.whatsapp.w4b" || pkg == "com.facebook.orca" || pkg == "com.facebook.mlite") {
+            val stopIntent = Intent(this, AlertService::class.java).apply {
+                action = "KUITTAA"
+            }
+            startService(stopIntent)
         }
     }
 }

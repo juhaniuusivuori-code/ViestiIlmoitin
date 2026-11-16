@@ -73,6 +73,12 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
     }
 
     private fun onkoViestiLuettu(): Boolean {
+        // WhatsApp ja Messenger eivät ole tekstiviestejä, niiden kuittaus hoidetaan
+        // ilmoituksen avaamisella/poistamisella tai "Kuittaa"-painikkeella
+        if (lahettaja.startsWith("com.")) {
+            return false
+        }
+
         return try {
             val uri = Uri.parse("content://sms/inbox")
             val cursor = contentResolver.query(uri, arrayOf("read"), "address = ? AND read = 0", arrayOf(lahettaja), null)
@@ -89,7 +95,7 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
         val kuittaaPendingIntent = PendingIntent.getService(this, 0, kuittaaIntent, PendingIntent.FLAG_IMMUTABLE)
 
         val notification = NotificationCompat.Builder(this, "HalytysKanava")
-            .setContentTitle("Saapui tekstiviesti!")
+            .setContentTitle("Saapui viesti!")
             .setContentText(viestiTeksti)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setPriority(NotificationCompat.PRIORITY_MAX)
