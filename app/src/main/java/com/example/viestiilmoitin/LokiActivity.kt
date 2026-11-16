@@ -45,13 +45,13 @@ class LokiActivity : AppCompatActivity() {
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     isLongPressTriggered = false
-                    btnResetLog.text = "⏳  Pidetään pohjassa... (1 s)"
+                    btnResetLog.text = "Pidetään pohjassa... (1 s)"
                     handler.postDelayed(resetRunnable, 1000)
                     true
                 }
                 MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                     handler.removeCallbacks(resetRunnable)
-                    btnResetLog.text = "🗑️  NOLLAA LOKI (Pidä pohjassa 1 s)"
+                    btnResetLog.text = "NOLLAA LOKI"
                     if (!isLongPressTriggered && event.action == MotionEvent.ACTION_UP) {
                         Toast.makeText(this@LokiActivity, "Pidä nappia pohjassa 1 sekunti nollataksesi", Toast.LENGTH_SHORT).show()
                     }
@@ -71,9 +71,9 @@ class LokiActivity : AppCompatActivity() {
 
         val sb = StringBuilder()
         for (item in yhteenvedot) {
-            sb.append("📌 ").append(item.sender).append(" (").append(item.appType).append(")\n")
-            sb.append("   • Yhteensä: ").append(item.totalCount).append(" viestiä\n")
-            sb.append("   • Päivät: ").append(item.datesDetail).append("\n\n")
+            sb.append("• ").append(item.sender).append(" (").append(item.appType).append(")\n")
+            sb.append("   - Yhteensä: ").append(item.totalCount).append(" viestiä\n")
+            sb.append("   - Päivät: ").append(item.datesDetail).append("\n\n")
             sb.append("────────────────────────────\n\n")
         }
 

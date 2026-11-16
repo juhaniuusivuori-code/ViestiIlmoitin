@@ -6,16 +6,16 @@
     android:padding="7dp"
     android:background="#F8F9FA">
 
-    <!-- 0. PÄÄLLÄ / POIS -PÄÄKYTKIN YLIMMÄISEKSI (Korkea palkki, teksti ei katoa reunan alle) -->
+    <!-- 0. PÄÄLLÄ / POIS -PÄÄKYTKIN YLIMMÄISEKSI (Korkea palkki, teksti ei katoa reunan alle, ilman hymiöitä) -->
     <Button
         android:id="@+id/btnMasterSwitch"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="54dp"
-        android:paddingTop="4dp"
-        android:paddingBottom="4dp"
-        android:text="🟢  SOVELLUS ON PÄÄLLÄ\n(Pidä 1 s: SAMMUTA)"
-        android:textSize="14sp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:text="SOVELLUS ON PÄÄLLÄ"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="#FFFFFF"
         android:backgroundTint="#2E7D32"
@@ -241,54 +241,60 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 6. Nappi ilmoitusluvan myöntämiseen -->
+    <!-- 6. Nappi ilmoitusluvan myöntämiseen (Ilman hymiöitä) -->
     <Button
         android:id="@+id/btnNotificationPermission"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="36dp"
-        android:padding="2dp"
-        android:text="🔔 SALLI ILMOITUKSET\n(Paina tästä ja valitse: Viesti-Ilmoitin)"
-        android:textSize="11sp"
+        android:minHeight="44dp"
+        android:padding="4dp"
+        android:text="SALLI ILMOITUKSET\n(Paina tästä ja valitse: Viesti-Ilmoitin)"
+        android:textSize="12sp"
         android:textStyle="bold"
         android:backgroundTint="#FF8F00"
         android:textColor="#FFFFFF"
         android:layout_marginBottom="3dp" />
 
-    <!-- 7. Kokeile ääntä (Korkeampi palkki) -->
+    <!-- 7. Kokeile ääntä (Korkea palkki, ilman hymiöitä) -->
     <Button
         android:id="@+id/btnTest"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:text="🔊   KOKEILE ÄÄNTÄ"
-        android:textSize="14sp"
+        android:minHeight="50dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:text="KOKEILE ÄÄNTÄ"
+        android:textSize="15sp"
         android:textStyle="bold"
         android:backgroundTint="#00897B"
         android:textColor="#FFFFFF"
         android:layout_marginBottom="3dp" />
 
-    <!-- 8. Ohje (Korkeampi palkki) -->
+    <!-- 8. Ohje (Korkea palkki, ilman hymiöitä) -->
     <Button
         android:id="@+id/btnHelp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:text="⚙️   O H J E"
-        android:textSize="14sp"
+        android:minHeight="50dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:text="O H J E"
+        android:textSize="15sp"
         android:textStyle="bold"
         android:backgroundTint="#37474F"
         android:textColor="#FFFFFF"
         android:layout_marginBottom="3dp" />
 
-    <!-- 9. Loki (Korkeampi palkki) -->
+    <!-- 9. Loki (Korkea palkki, ilman hymiöitä) -->
     <Button
         android:id="@+id/btnLog"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:text="📋   L O K I"
-        android:textSize="14sp"
+        android:minHeight="50dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:text="L O K I"
+        android:textSize="15sp"
         android:textStyle="bold"
         android:backgroundTint="#546E7A"
         android:textColor="#FFFFFF"
@@ -313,14 +319,16 @@
         android:progress="100"
         android:layout_marginBottom="4dp" />
 
-    <!-- 11. ALIMMAISEKSI: Tallenna asetukset VOLUMEN alle (Korkea ja selkeä palkki) -->
+    <!-- 11. ALIMMAISEKSI: Tallenna asetukset VOLUMEN alle (Korkea ja selkeä palkki, ilman hymiöitä) -->
     <Button
         android:id="@+id/btnSave"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="48dp"
-        android:text="💾   TALLENNA ASETUKSET"
-        android:textSize="15sp"
+        android:minHeight="52dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:text="TALLENNA ASETUKSET"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:backgroundTint="#1E88E5"
         android:textColor="#FFFFFF" />

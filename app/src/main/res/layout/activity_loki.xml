@@ -16,13 +16,16 @@
         android:textColor="#1A237E"
         android:layout_marginBottom="12dp" />
 
-    <!-- Nollaa loki -painike (1 sekunnin viivevahvistus) -->
+    <!-- Nollaa loki -painike (Korkea palkki, teksti ei häviä reunan alle, ilman hymiöitä) -->
     <Button
         android:id="@+id/btnResetLog"
         android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:text="🗑️  NOLLAA LOKI (Pidä pohjassa 1 s)"
-        android:textSize="14sp"
+        android:layout_height="wrap_content"
+        android:minHeight="56dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:text="NOLLAA LOKI"
+        android:textSize="16sp"
         android:textStyle="bold"
         android:backgroundTint="#D32F2F"
         android:textColor="#FFFFFF"
@@ -47,12 +50,15 @@
             android:text="Ladataan lokia..." />
     </ScrollView>
 
-    <!-- Palaa takaisin -nappi -->
+    <!-- Palaa takaisin -nappi (Korkea palkki, ilman hymiöitä) -->
     <Button
         android:id="@+id/btnBack"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
-        android:text="⬅️   PALAA TAKAISIN"
+        android:layout_height="wrap_content"
+        android:minHeight="56dp"
+        android:paddingTop="6dp"
+        android:paddingBottom="6dp"
+        android:text="PALAA TAKAISIN"
         android:textSize="17sp"
         android:textStyle="bold"
         android:backgroundTint="#37474F"

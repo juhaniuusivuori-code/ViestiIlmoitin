@@ -136,7 +136,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
                     isMasterSwitchLongPressTriggered = false
-                    btnMasterSwitch.text = "⏳  Pidetään pohjassa... (1 s)"
+                    btnMasterSwitch.text = "Pidetään pohjassa... (1 s)"
                     btnMasterSwitch.backgroundTintList = ColorStateList.valueOf(android.graphics.Color.parseColor("#E65100"))
                     masterSwitchHandler.postDelayed(toggleRunnable, 1000)
                     true
@@ -156,10 +156,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun paivitaPaaKytkinNakyma(isEnabled: Boolean) {
         if (isEnabled) {
-            btnMasterSwitch.text = "🟢  SOVELLUS ON PÄÄLLÄ\n(Pidä 1 s: SAMMUTA)"
+            btnMasterSwitch.text = "SOVELLUS ON PÄÄLLÄ"
             btnMasterSwitch.backgroundTintList = ColorStateList.valueOf(android.graphics.Color.parseColor("#2E7D32"))
         } else {
-            btnMasterSwitch.text = "🔴  SOVELLUS ON POIS PÄÄLTÄ\n(Pidä 1 s: KÄYNNISTÄ)"
+            btnMasterSwitch.text = "SOVELLUS ON POIS PÄÄLTÄ"
             btnMasterSwitch.backgroundTintList = ColorStateList.valueOf(android.graphics.Color.parseColor("#C62828"))
         }
     }
@@ -167,10 +167,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun paivitaIlmoitusLuvanTila() {
         val onkoLupa = NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
         if (onkoLupa) {
-            btnNotificationPermission.text = "✅ ILMOITUSKUUNTELU ON PÄÄLLÄ\n(WhatsApp, Messenger ja Sähköposti aktivoitu)"
+            btnNotificationPermission.text = "ILMOITUSKUUNTELU ON PÄÄLLÄ\n(WhatsApp, Messenger ja Sähköposti aktivoitu)"
             btnNotificationPermission.setBackgroundColor(android.graphics.Color.parseColor("#388E3C"))
         } else {
-            btnNotificationPermission.text = "🔔 SALLI ILMOITUKSET\n(Paina tästä ja valitse: Viesti-Ilmoitin)"
+            btnNotificationPermission.text = "SALLI ILMOITUKSET\n(Paina tästä ja valitse: Viesti-Ilmoitin)"
             btnNotificationPermission.setBackgroundColor(android.graphics.Color.parseColor("#FF8F00"))
         }
     }
@@ -311,7 +311,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         scrollView.addView(textView)
 
         AlertDialog.Builder(this)
-            .setTitle("⚙️ OHJE JA KÄYTTÖOPAS")
+            .setTitle("OHJE JA KÄYTTÖOPAS")
             .setView(scrollView)
             .setPositiveButton("SULJE OHJE") { dialog, _ ->
                 dialog.dismiss()
