@@ -11,12 +11,17 @@ import androidx.core.content.ContextCompat
 class SmsReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == Telephony.Sms.Intents.SMS_RECEIVED_ACTION) {
+            val prefs = context.getSharedPreferences("Asetukset", Context.MODE_PRIVATE)
+            val isEnabled = prefs.getBoolean("app_enabled", true)
+            if (!isEnabled) {
+                return
+            }
+
             val messages = Telephony.Sms.Intents.getMessagesFromIntent(intent)
             for (sms in messages) {
                 val lahettajaNumero = sms.displayOriginatingAddress ?: continue
                 val nimi = etsiYhteystiedonNimi(context, lahettajaNumero)
 
-                val prefs = context.getSharedPreferences("Asetukset", Context.MODE_PRIVATE)
                 val prefix = prefs.getString("prefix", "VIESTI TULI ") ?: ""
                 val suffix = prefs.getString("suffix", "") ?: ""
                 val unknown = prefs.getString("unknown", "VIESTI NUMEROSTA ") ?: ""

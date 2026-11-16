@@ -39,6 +39,10 @@ class AppNotificationListener : NotificationListenerService() {
 
         val currentTime = System.currentTimeMillis()
         val prefs = getSharedPreferences("Asetukset", Context.MODE_PRIVATE)
+        val isEnabled = prefs.getBoolean("app_enabled", true)
+        if (!isEnabled) {
+            return
+        }
 
         var kuulutusTeksti: String? = null
         var logiNimi: String? = null

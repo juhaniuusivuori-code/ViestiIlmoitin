@@ -33,7 +33,13 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action == "KUITTAA") {
+        if (intent?.action == "KUITTAA" || intent?.action == "STOP") {
+            lopetaHalytys()
+            return Service.START_NOT_STICKY
+        }
+
+        val prefs = getSharedPreferences("Asetukset", Context.MODE_PRIVATE)
+        if (!prefs.getBoolean("app_enabled", true)) {
             lopetaHalytys()
             return Service.START_NOT_STICKY
         }
@@ -50,12 +56,17 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
     }
 
     private fun puhuLujallaAanella() {
+        val prefs = getSharedPreferences("Asetukset", Context.MODE_PRIVATE)
+        if (!prefs.getBoolean("app_enabled", true)) {
+            lopetaHalytys()
+            return
+        }
+
         if (onkoViestiLuettu()) {
             lopetaHalytys()
             return
         }
 
-        val prefs = getSharedPreferences("Asetukset", Context.MODE_PRIVATE)
         val volumePercent = prefs.getInt("volume_percent", 100) / 100f
 
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -107,6 +118,9 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
 
     private fun lopetaHalytys() {
         handler.removeCallbacksAndMessages(null)
+        try {
+            tts?.stop()
+        } catch (e: Exception) {}
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             stopForeground(Service.STOP_FOREGROUND_REMOVE)
         } else {

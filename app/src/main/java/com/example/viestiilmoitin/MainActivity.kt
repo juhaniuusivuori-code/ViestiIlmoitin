@@ -1,13 +1,19 @@
 package com.example.viestiilmoitin
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
+import android.content.res.ColorStateList
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.speech.tts.TextToSpeech
+import android.view.HapticFeedbackConstants
+import android.view.MotionEvent
 import android.widget.*
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -17,6 +23,7 @@ import java.util.Locale
 
 class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
+    private lateinit var btnMasterSwitch: Button
     private lateinit var editPrefix: EditText
     private lateinit var editSuffix: EditText
     private lateinit var editUnknown: EditText
@@ -32,10 +39,14 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var btnLog: Button
     private var tts: TextToSpeech? = null
 
+    private val masterSwitchHandler = Handler(Looper.getMainLooper())
+    private var isMasterSwitchLongPressTriggered = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        btnMasterSwitch = findViewById(R.id.btnMasterSwitch)
         editPrefix = findViewById(R.id.editPrefix)
         editSuffix = findViewById(R.id.editSuffix)
         editUnknown = findViewById(R.id.editUnknown)
@@ -52,6 +63,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         tts = TextToSpeech(this, this)
 
+        alustaPaaKytkin()
         pyydaLuvat()
         alustaValikot()
         lataaAsetukset()
@@ -91,6 +103,65 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     override fun onResume() {
         super.onResume()
         paivitaIlmoitusLuvanTila()
+        val isEnabled = getSharedPreferences("Asetukset", Context.MODE_PRIVATE).getBoolean("app_enabled", true)
+        paivitaPaaKytkinNakyma(isEnabled)
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    private fun alustaPaaKytkin() {
+        val prefs = getSharedPreferences("Asetukset", Context.MODE_PRIVATE)
+        var isEnabled = prefs.getBoolean("app_enabled", true)
+        paivitaPaaKytkinNakyma(isEnabled)
+
+        val toggleRunnable = Runnable {
+            isMasterSwitchLongPressTriggered = true
+            isEnabled = !isEnabled
+            prefs.edit().putBoolean("app_enabled", isEnabled).apply()
+            paivitaPaaKytkinNakyma(isEnabled)
+
+            btnMasterSwitch.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+
+            if (isEnabled) {
+                Toast.makeText(this, "Sovellus kytketty PÄÄLLE!", Toast.LENGTH_SHORT).show()
+            } else {
+                val stopIntent = Intent(this, AlertService::class.java).apply {
+                    action = "STOP"
+                }
+                startService(stopIntent)
+                Toast.makeText(this, "Sovellus kytketty POIS PÄÄLTÄ!", Toast.LENGTH_SHORT).show()
+            }
+        }
+
+        btnMasterSwitch.setOnTouchListener { _, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    isMasterSwitchLongPressTriggered = false
+                    btnMasterSwitch.text = "⏳  Pidetään pohjassa... (1 s)"
+                    btnMasterSwitch.backgroundTintList = ColorStateList.valueOf(android.graphics.Color.parseColor("#E65100"))
+                    masterSwitchHandler.postDelayed(toggleRunnable, 1000)
+                    true
+                }
+                MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                    masterSwitchHandler.removeCallbacks(toggleRunnable)
+                    paivitaPaaKytkinNakyma(isEnabled)
+                    if (!isMasterSwitchLongPressTriggered && event.action == MotionEvent.ACTION_UP) {
+                        Toast.makeText(this, "Pidä nappia pohjassa 1 sekunti vaihtaaksesi tilan", Toast.LENGTH_SHORT).show()
+                    }
+                    true
+                }
+                else -> false
+            }
+        }
+    }
+
+    private fun paivitaPaaKytkinNakyma(isEnabled: Boolean) {
+        if (isEnabled) {
+            btnMasterSwitch.text = "🟢  SOVELLUS ON PÄÄLLÄ (Pidä 1 s: SAMMUTA)"
+            btnMasterSwitch.backgroundTintList = ColorStateList.valueOf(android.graphics.Color.parseColor("#2E7D32"))
+        } else {
+            btnMasterSwitch.text = "🔴  SOVELLUS ON POIS PÄÄLTÄ (Pidä 1 s: KÄYNNISTÄ)"
+            btnMasterSwitch.backgroundTintList = ColorStateList.valueOf(android.graphics.Color.parseColor("#C62828"))
+        }
     }
 
     private fun paivitaIlmoitusLuvanTila() {
@@ -161,7 +232,15 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             Tämä sovellus ilmoittaa saapuvista tekstiviesteistä, WhatsApp-, Messenger- ja sähköpostiviesteistä suurella äänellä.
 
             ━━━━━━━━━━━━━━━━━━━━━━
-            1. TÄRKEÄT LUVAT (ASETUKSET)
+            1. PÄÄLLÄ / POIS -PÄÄKYTKIN
+            ━━━━━━━━━━━━━━━━━━━━━━
+            • Ruudun ylimmäisenä on pääkytkin, josta saat koko sovelluksen ilmoitukset päälle tai pois päältä.
+            • Painikkeessa on 1 sekunnin turvaviive vahinkopainallusten estämiseksi: pidä painiketta yhtäjaksoisesti pohjassa yhden sekunnin ajan vaihtaaksesi tilan.
+            • Kun kytkin on VIHREÄ (PÄÄLLÄ), sovellus kuuntelee ja huutaa saapuvat viestit.
+            • Kun kytkin on PUNAINEN (POIS PÄÄLTÄ), sovellus on täysin hiljainen eikä mitään ilmoituksia huudeta.
+
+            ━━━━━━━━━━━━━━━━━━━━━━
+            2. TÄRKEÄT LUVAT (ASETUKSET)
             ━━━━━━━━━━━━━━━━━━━━━━
             • TEKSTIVIESTIT JA YHTEYSTIEDOT:
               Puhelin kysyy näitä lupia automaattisesti. Valitse aina "Salli".
@@ -177,7 +256,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
               Mene: Puhelimen Asetukset ➔ Sovellukset ➔ Viesti-Ilmoitin ➔ Paina oikeasta yläkulmasta 3 pistettä ➔ Valitse "Salli rajoitetut asetukset". Tämän jälkeen luvan saa kytkettyä päälle.
 
             ━━━━━━━━━━━━━━━━━━━━━━
-            2. VIESTIEN HUUTOLAUSEET JA LÄHETTÄJÄT
+            3. VIESTIEN HUUTOLAUSEET JA LÄHETTÄJÄT
             ━━━━━━━━━━━━━━━━━━━━━━
             • TEKSTIVIESTI:
               - Ennen nimeä: Esim. "VIESTI TULI "
@@ -193,7 +272,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
               - Sovellus tunnistaa saapuneen sähköpostin ja huutaa lähettäjän nimen (esim. "SÄHKÖPOSTI Matti Meikäläinen").
 
             ━━━━━━━━━━━━━━━━━━━━━━
-            3. TOISTO JA KUITTAUS
+            4. TOISTO JA KUITTAUS
             ━━━━━━━━━━━━━━━━━━━━━━
             • TOISTOKERRAT JA -VÄLI:
               Valitse, kuinka monta kertaa (1-10) ja kuinka usein (1-10 min) ilmoitus toistetaan, jos viestiä ei heti huomata.
@@ -201,20 +280,20 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
               Viestin toistohälytys kuittaantuu ja sammuu automaattisesti, kun viesti tai sähköposti avataan tai pyyhkäistään pois.
 
             ━━━━━━━━━━━━━━━━━━━━━━
-            4. ÄÄNENVOIMAKKUUDEN SÄÄTÖ
+            5. ÄÄNENVOIMAKKUUDEN SÄÄTÖ
             ━━━━━━━━━━━━━━━━━━━━━━
             • Ruudun alalaidassa olevalla liukusäätimellä voit määrittää äänenvoimakkuuden (10 % – 100 %).
             • Kokeile äänenvoimakkuutta painamalla "KOKEILE ÄÄNTÄ" ja muista tallentaa painamalla "TALLENNA ASETUKSET"!
 
             ━━━━━━━━━━━━━━━━━━━━━━
-            5. VIESTILOKI
+            6. VIESTILOKI
             ━━━━━━━━━━━━━━━━━━━━━━
             • Paina päänäytöltä "LOKI"-painiketta.
             • Lokista näet kaikki viestien lähettäjät, kuinka monta viestiä kukin on lähettänyt yhteensä ja minä päivinä.
             • Lokin voi tyhjentää pitämällä "NOLLAA LOKI" -painiketta pohjassa yhden sekunnin ajan (estää vahinkopainallukset).
 
             ━━━━━━━━━━━━━━━━━━━━━━
-            6. TALLENNUS JA KOKEILU
+            7. TALLENNUS JA KOKEILU
             ━━━━━━━━━━━━━━━━━━━━━━
             • Paina "KOKEILE ÄÄNTÄ" testataksesi ääntä kaiuttimesta.
             • Muutosten jälkeen muista aina painaa "TALLENNA ASETUKSET"!

@@ -3,14 +3,26 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="8dp"
+    android:padding="7dp"
     android:background="#F8F9FA">
+
+    <!-- 0. PÄÄLLÄ / POIS -PÄÄKYTKIN YLIMMÄISEKSI (1 s viive vahinkopainalluksia vastaan) -->
+    <Button
+        android:id="@+id/btnMasterSwitch"
+        android:layout_width="match_parent"
+        android:layout_height="44dp"
+        android:text="🟢  SOVELLUS ON PÄÄLLÄ (Pidä 1 s: SAMMUTA)"
+        android:textSize="13sp"
+        android:textStyle="bold"
+        android:textColor="#FFFFFF"
+        android:backgroundTint="#2E7D32"
+        android:layout_marginBottom="3dp" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="PUHUVA VIESTI-ILMOITIN"
-        android:textSize="18sp"
+        android:textSize="17sp"
         android:textStyle="bold"
         android:gravity="center"
         android:textColor="#1A237E"
@@ -39,7 +51,7 @@
             <EditText
                 android:id="@+id/editPrefix"
                 android:layout_width="match_parent"
-                android:layout_height="36dp"
+                android:layout_height="35dp"
                 android:background="#FFFFFF"
                 android:padding="5dp"
                 android:hint="VIESTI TULI "
@@ -65,7 +77,7 @@
             <EditText
                 android:id="@+id/editSuffix"
                 android:layout_width="match_parent"
-                android:layout_height="36dp"
+                android:layout_height="35dp"
                 android:background="#FFFFFF"
                 android:padding="5dp"
                 android:hint="(valinnainen)"
@@ -88,7 +100,7 @@
     <EditText
         android:id="@+id/editUnknown"
         android:layout_width="match_parent"
-        android:layout_height="36dp"
+        android:layout_height="35dp"
         android:background="#FFFFFF"
         android:padding="5dp"
         android:hint="VIESTI NUMEROSTA "
@@ -121,7 +133,7 @@
             <EditText
                 android:id="@+id/editWhatsApp"
                 android:layout_width="match_parent"
-                android:layout_height="36dp"
+                android:layout_height="35dp"
                 android:background="#FFFFFF"
                 android:padding="5dp"
                 android:hint="WHATSUP VIESTI"
@@ -147,7 +159,7 @@
             <EditText
                 android:id="@+id/editMessenger"
                 android:layout_width="match_parent"
-                android:layout_height="36dp"
+                android:layout_height="35dp"
                 android:background="#FFFFFF"
                 android:padding="5dp"
                 android:hint="MESSENGER VIESTI"
@@ -170,7 +182,7 @@
     <EditText
         android:id="@+id/editEmail"
         android:layout_width="match_parent"
-        android:layout_height="36dp"
+        android:layout_height="35dp"
         android:background="#FFFFFF"
         android:padding="5dp"
         android:hint="SÄHKÖPOSTI"
@@ -202,7 +214,7 @@
             <Spinner
                 android:id="@+id/spinnerRepeats"
                 android:layout_width="match_parent"
-                android:layout_height="34dp"
+                android:layout_height="33dp"
                 android:background="#FFFFFF" />
         </LinearLayout>
 
@@ -221,7 +233,7 @@
             <Spinner
                 android:id="@+id/spinnerInterval"
                 android:layout_width="match_parent"
-                android:layout_height="34dp"
+                android:layout_height="33dp"
                 android:background="#FFFFFF" />
         </LinearLayout>
     </LinearLayout>
@@ -231,7 +243,7 @@
         android:id="@+id/btnNotificationPermission"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="38dp"
+        android:minHeight="36dp"
         android:padding="2dp"
         android:text="🔔 SALLI ILMOITUKSET\n(Paina tästä ja valitse: Viesti-Ilmoitin)"
         android:textSize="11sp"
@@ -244,7 +256,7 @@
     <Button
         android:id="@+id/btnTest"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="38dp"
         android:text="🔊   KOKEILE ÄÄNTÄ"
         android:textSize="14sp"
         android:textStyle="bold"
@@ -256,7 +268,7 @@
     <Button
         android:id="@+id/btnSave"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="38dp"
         android:text="💾   TALLENNA ASETUKSET"
         android:textSize="14sp"
         android:textStyle="bold"
@@ -268,9 +280,9 @@
     <Button
         android:id="@+id/btnHelp"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="38dp"
         android:text="⚙️   O H J E"
-        android:textSize="15sp"
+        android:textSize="14sp"
         android:textStyle="bold"
         android:backgroundTint="#37474F"
         android:textColor="#FFFFFF"
@@ -280,13 +292,13 @@
     <Button
         android:id="@+id/btnLog"
         android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_height="38dp"
         android:text="📋   L O K I"
-        android:textSize="15sp"
+        android:textSize="14sp"
         android:textStyle="bold"
         android:backgroundTint="#546E7A"
         android:textColor="#FFFFFF"
-        android:layout_marginBottom="4dp" />
+        android:layout_marginBottom="3dp" />
 
     <!-- 11. ALIMMAISEKSI: VOLUME liukusäädin lokin alapuolella -->
     <TextView
@@ -302,7 +314,7 @@
     <SeekBar
         android:id="@+id/seekBarVolume"
         android:layout_width="match_parent"
-        android:layout_height="26dp"
+        android:layout_height="24dp"
         android:max="100"
         android:progress="100" />
 
