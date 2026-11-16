@@ -31,71 +31,33 @@
         android:textColor="#1A237E"
         android:layout_marginBottom="3dp" />
 
-    <!-- 1. Tekstiviesti: Ennen nimeä ja nimen jälkeen rinnakkain -->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="3dp">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginEnd="4dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Ennen nimeä:"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:textColor="#333333" />
-            <EditText
-                android:id="@+id/editPrefix"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:background="#FFFFFF"
-                android:padding="5dp"
-                android:hint="VIESTI TULI "
-                android:singleLine="true"
-                android:inputType="text"
-                android:scrollHorizontally="true"
-                android:textSize="13sp" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="4dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Nimen jälkeen:"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:textColor="#333333" />
-            <EditText
-                android:id="@+id/editSuffix"
-                android:layout_width="match_parent"
-                android:layout_height="35dp"
-                android:background="#FFFFFF"
-                android:padding="5dp"
-                android:hint="(valinnainen)"
-                android:singleLine="true"
-                android:inputType="text"
-                android:scrollHorizontally="true"
-                android:textSize="13sp" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- 2. Tuntematon numero KOKO LEVEYDELLÄ (mahtuu pitkäkin teksti leikkaantumatta) -->
+    <!-- 1. SMS-huuto KOKO LEVEYDELLÄ -->
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tuntematon numero:"
+        android:text="SMS-huuto:"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:textColor="#333333" />
+
+    <EditText
+        android:id="@+id/editPrefix"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:background="#FFFFFF"
+        android:padding="5dp"
+        android:hint="VIESTI TULI "
+        android:singleLine="true"
+        android:inputType="text"
+        android:scrollHorizontally="true"
+        android:textSize="13sp"
+        android:layout_marginBottom="3dp" />
+
+    <!-- 2. SMS tuntematon-huuto KOKO LEVEYDELLÄ (mahtuu pitkäkin teksti leikkaantumatta) -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="SMS tuntematon-huuto:"
         android:textSize="11sp"
         android:textStyle="bold"
         android:textColor="#333333" />

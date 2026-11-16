@@ -24,15 +24,14 @@ class SmsReceiver : BroadcastReceiver() {
                 val nimi = etsiYhteystiedonNimi(context, lahettajaNumero)
 
                 val prefix = prefs.getString("prefix", "VIESTI TULI ") ?: ""
-                val suffix = prefs.getString("suffix", "") ?: ""
                 val unknown = prefs.getString("unknown", "VIESTI NUMEROSTA ") ?: ""
                 val repeats = prefs.getInt("repeats", 3)
                 val intervalMinutes = prefs.getInt("interval", 1) + 1
 
                 val puhuttavaViesti = if (nimi != null) {
-                    "$prefix $nimi $suffix".trim()
+                    "$prefix $nimi".trim()
                 } else {
-                    "$unknown $lahettajaNumero"
+                    "$unknown $lahettajaNumero".trim()
                 }
 
                 // Lisätään merkintä viestilokiin

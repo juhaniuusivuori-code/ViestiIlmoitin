@@ -25,7 +25,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private lateinit var btnMasterSwitch: Button
     private lateinit var editPrefix: EditText
-    private lateinit var editSuffix: EditText
     private lateinit var editUnknown: EditText
     private lateinit var editWhatsApp: EditText
     private lateinit var editMessenger: EditText
@@ -47,7 +46,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         btnMasterSwitch = findViewById(R.id.btnMasterSwitch)
         editPrefix = findViewById(R.id.editPrefix)
-        editSuffix = findViewById(R.id.editSuffix)
         editUnknown = findViewById(R.id.editUnknown)
         editWhatsApp = findViewById(R.id.editWhatsApp)
         editMessenger = findViewById(R.id.editMessenger)
@@ -180,7 +178,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun lataaAsetukset() {
         val prefs = getSharedPreferences("Asetukset", Context.MODE_PRIVATE)
         editPrefix.setText(prefs.getString("prefix", "VIESTI TULI "))
-        editSuffix.setText(prefs.getString("suffix", ""))
         editUnknown.setText(prefs.getString("unknown", "VIESTI NUMEROSTA "))
         editWhatsApp.setText(prefs.getString("whatsapp_text", "WHATSUP VIESTI"))
         editMessenger.setText(prefs.getString("messenger_text", "MESSENGER VIESTI"))
@@ -196,7 +193,6 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun tallennaAsetukset() {
         val prefs = getSharedPreferences("Asetukset", Context.MODE_PRIVATE).edit()
         prefs.putString("prefix", editPrefix.text.toString())
-        prefs.putString("suffix", editSuffix.text.toString())
         prefs.putString("unknown", editUnknown.text.toString())
         prefs.putString("whatsapp_text", editWhatsApp.text.toString())
         prefs.putString("messenger_text", editMessenger.text.toString())

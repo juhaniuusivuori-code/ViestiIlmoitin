@@ -126,10 +126,9 @@ class AsetuksetActivity : AppCompatActivity() {
             ━━━━━━━━━━━━━━━━━━━━━━
             4. VIESTIEN HUUTOLAUSEET JA LÄHETTÄJÄT
             ━━━━━━━━━━━━━━━━━━━━━━
-            • TEKSTIVIESTI:
-              - Ennen nimeä: Esim. "VIESTI TULI "
-              - Nimen jälkeen: Esim. " LAITTOI VIESTIN" (tai jätä tyhjäksi).
-              - Tuntematon numero: Mitä huudetaan, jos numeroa ei löydy osoitekirjasta (esim. "VIESTI NUMEROSTA ").
+            • TEKSTIVIESTI (SMS):
+              - SMS-huuto: Esim. "VIESTI TULI" (sovellus sanoo tämän ja lähettäjän nimen).
+              - SMS tuntematon-huuto: Mitä huudetaan, jos numeroa ei löydy osoitekirjasta (esim. "VIESTI NUMEROSTA").
               (Voit muuttaa henkilön nimen tai lempinimen suoraan puhelimen omaan osoitekirjaan).
 
             • WHATSAPP JA MESSENGER:
