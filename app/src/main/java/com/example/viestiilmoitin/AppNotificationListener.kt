@@ -68,17 +68,19 @@ class AppNotificationListener : NotificationListenerService() {
                 sovelluksenNimi = "Messenger"
             }
         }
-        // 3. SÄHKÖPOSTI (Gmail, Outlook, Samsung Mail, K-9 jne.)
+        // 3. SÄHKÖPOSTI (Gmail, Outlook, Samsung Mail, Proton, Yahoo jne.)
         else if (onkoSahkoposti(pkg, notification)) {
             if (currentTime - lastEmailTime > 3000) {
                 lastEmailTime = currentTime
                 val emailPrefix = prefs.getString("email_text", "SÄHKÖPOSTI") ?: "SÄHKÖPOSTI"
-                kuulutusTeksti = if (rawTitle.isNotEmpty()) {
-                    "$emailPrefix $rawTitle".trim()
+                val lahettaja = etsiSahkopostinLahettaja(notification)
+
+                kuulutusTeksti = if (lahettaja.isNotEmpty()) {
+                    "$emailPrefix $lahettaja".trim()
                 } else {
                     emailPrefix
                 }
-                logiNimi = if (rawTitle.isNotEmpty()) rawTitle else "Tuntematon"
+                logiNimi = if (lahettaja.isNotEmpty()) lahettaja else "Tuntematon"
                 sovelluksenNimi = "Sähköposti"
             }
         }
@@ -113,6 +115,64 @@ class AppNotificationListener : NotificationListenerService() {
         }
     }
 
+    private fun etsiSahkopostinLahettaja(notification: Notification): String {
+        val extras = notification.extras ?: return ""
+
+        val title = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()?.trim() ?: ""
+        val titleBig = extras.getCharSequence("android.title.big")?.toString()?.trim() ?: ""
+        val text = extras.getCharSequence(Notification.EXTRA_TEXT)?.toString()?.trim() ?: ""
+        val bigText = extras.getCharSequence("android.bigText")?.toString()?.trim() ?: ""
+
+        val lines = extras.getCharSequenceArray(Notification.EXTRA_TEXT_LINES)
+        if (lines != null && lines.isNotEmpty()) {
+            val latest = lines.lastOrNull()?.toString()?.trim() ?: ""
+            if (latest.isNotEmpty()) {
+                val candidate = latest.split(":", "—", "-").firstOrNull()?.trim() ?: ""
+                if (candidate.isNotEmpty() && !onkoYleisOtsikko(candidate)) {
+                    return siistiLahettajanNimi(candidate)
+                }
+            }
+        }
+
+        val candidate = when {
+            title.isNotEmpty() && !onkoYleisOtsikko(title) -> title
+            titleBig.isNotEmpty() && !onkoYleisOtsikko(titleBig) -> titleBig
+            text.isNotEmpty() && !onkoYleisOtsikko(text) -> {
+                if (text.contains(":")) text.substringBefore(":").trim() else text
+            }
+            bigText.isNotEmpty() && !onkoYleisOtsikko(bigText) -> {
+                if (bigText.contains(":")) bigText.substringBefore(":").trim() else bigText
+            }
+            title.isNotEmpty() -> title
+            else -> ""
+        }
+
+        return siistiLahettajanNimi(candidate)
+    }
+
+    private fun onkoYleisOtsikko(text: String): Boolean {
+        val lower = text.lowercase()
+        return lower.contains("uutta viestiä") ||
+               lower.contains("uusi viesti") ||
+               lower.contains("new message") ||
+               lower.contains("unread") ||
+               lower.contains("messages")
+    }
+
+    private fun siistiLahettajanNimi(raw: String): String {
+        var s = raw.trim()
+        if (s.contains("<")) {
+            s = s.substringBefore("<").trim()
+        }
+        if (s.contains("(")) {
+            s = s.substringBefore("(").trim()
+        }
+        if (s.isEmpty() && raw.contains("@")) {
+            s = raw.substringBefore("@").replace(".", " ").trim()
+        }
+        return s.ifEmpty { raw }
+    }
+
     private fun onkoYhteystiedoissa(context: Context, nimi: String): Boolean {
         if (nimi.isBlank()) return false
         return try {
@@ -127,14 +187,23 @@ class AppNotificationListener : NotificationListenerService() {
     }
 
     private fun onkoSahkoposti(pkg: String, notification: Notification): Boolean {
-        if (pkg == "com.google.android.gm" ||
-            pkg == "com.microsoft.office.outlook" ||
-            pkg == "com.samsung.android.email.provider" ||
-            pkg == "com.fsck.k9" ||
-            pkg == "net.thunderbird.android"
+        val p = pkg.lowercase()
+        if (p.contains("gm") ||
+            p.contains("outlook") ||
+            p.contains("email") ||
+            p.contains("mail") ||
+            p.contains("k9") ||
+            p.contains("thunderbird") ||
+            p.contains("proton") ||
+            p.contains("yahoo")
         ) {
             return true
         }
-        return notification.category == Notification.CATEGORY_EMAIL
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            if (notification.category == Notification.CATEGORY_EMAIL) {
+                return true
+            }
+        }
+        return false
     }
 }

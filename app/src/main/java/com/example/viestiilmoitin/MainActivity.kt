@@ -26,6 +26,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private lateinit var spinnerRepeats: Spinner
     private lateinit var spinnerInterval: Spinner
     private lateinit var btnNotificationPermission: Button
+    private lateinit var tvVolumeLabel: TextView
+    private lateinit var seekBarVolume: SeekBar
     private lateinit var btnHelp: Button
     private lateinit var btnLog: Button
     private var tts: TextToSpeech? = null
@@ -43,6 +45,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         spinnerRepeats = findViewById(R.id.spinnerRepeats)
         spinnerInterval = findViewById(R.id.spinnerInterval)
         btnNotificationPermission = findViewById(R.id.btnNotificationPermission)
+        tvVolumeLabel = findViewById(R.id.tvVolumeLabel)
+        seekBarVolume = findViewById(R.id.seekBarVolume)
         btnHelp = findViewById(R.id.btnHelp)
         btnLog = findViewById(R.id.btnLog)
 
@@ -51,6 +55,15 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         pyydaLuvat()
         alustaValikot()
         lataaAsetukset()
+
+        seekBarVolume.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                val p = progress.coerceAtLeast(10)
+                tvVolumeLabel.text = "ÄÄNENVOIMAKKUUS: $p %"
+            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        })
 
         btnNotificationPermission.setOnClickListener {
             val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
@@ -109,6 +122,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         editEmail.setText(prefs.getString("email_text", "SÄHKÖPOSTI"))
         spinnerRepeats.setSelection(prefs.getInt("repeats", 3))
         spinnerInterval.setSelection(prefs.getInt("interval", 1))
+
+        val vol = prefs.getInt("volume_percent", 100).coerceAtLeast(10)
+        seekBarVolume.progress = vol
+        tvVolumeLabel.text = "ÄÄNENVOIMAKKUUS: $vol %"
     }
 
     private fun tallennaAsetukset() {
@@ -121,15 +138,20 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         prefs.putString("email_text", editEmail.text.toString())
         prefs.putInt("repeats", spinnerRepeats.selectedItemPosition)
         prefs.putInt("interval", spinnerInterval.selectedItemPosition)
+
+        val vol = seekBarVolume.progress.coerceAtLeast(10)
+        prefs.putInt("volume_percent", vol)
         prefs.apply()
     }
 
     private fun soitaTestiAani() {
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVolume, 0)
+        val volPercent = seekBarVolume.progress.coerceAtLeast(10) / 100f
+        val targetVolume = (maxVolume * volPercent).toInt().coerceIn(1, maxVolume)
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, targetVolume, 0)
 
-        val testiLause = "${editPrefix.text} Pekka Virtanen. ${editWhatsApp.text} Peksu. ${editEmail.text} Matti.".trim()
+        val testiLause = "${editPrefix.text} Pekka Virtanen. ${editWhatsApp.text} Peksu. ${editEmail.text} Matti Meikäläinen.".trim()
         tts?.speak(testiLause, TextToSpeech.QUEUE_FLUSH, null, "TEST_ID")
     }
 
@@ -142,8 +164,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             1. TÄRKEÄT LUVAT (ASETUKSET)
             ━━━━━━━━━━━━━━━━━━━━━━
             • TEKSTIVIESTIT JA YHTEYSTIEDOT:
-              Puhelin kysyy näitä automaattisesti. Valitse aina "Salli".
-              (Tarvitaan jotta sovellus havaitsee saapuvan tekstiviestin ja löytää nimen puhelimen osoitekirjasta).
+              Puhelin kysyy näitä lupia automaattisesti. Valitse aina "Salli".
+              (Tarvitaan, jotta sovellus havaitsee saapuvan viestin ja löytää nimen puhelimen osoitekirjasta).
 
             • WHATSAPP, MESSENGER JA SÄHKÖPOSTI:
               1. Paina päänäytön oranssia painiketta "SALLI ILMOITUKSET".
@@ -152,7 +174,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
               4. Kun palaat sovellukseen, painike muuttuu vihreäksi.
 
             * VINKKI (jos puhelin ilmoittaa 'Rajoitettu asetus'):
-              Mene: Puhelimen Asetukset ➔ Sovellukset ➔ Viesti-Ilmoitin ➔ Paina oikeasta yläkulmasta 3 pistettä ➔ Valitse "Salli rajoitetut asetukset". Tämän jälkeen luvan saa heti kytkettyä päälle.
+              Mene: Puhelimen Asetukset ➔ Sovellukset ➔ Viesti-Ilmoitin ➔ Paina oikeasta yläkulmasta 3 pistettä ➔ Valitse "Salli rajoitetut asetukset". Tämän jälkeen luvan saa kytkettyä päälle.
 
             ━━━━━━━━━━━━━━━━━━━━━━
             2. VIESTIEN HUUTOLAUSEET
@@ -164,32 +186,38 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
               (Voit muuttaa henkilön lempinimen suoraan puhelimen omaan osoitekirjaan).
 
             • WHATSAPP JA MESSENGER:
-              - Jos lähettäjä löytyy puhelimen osoitekirjasta, sovellus ilmoittaa nimen (esim. "WHATSUP VIESTI Peksu").
+              - Jos lähettäjä löytyy puhelimen osoitekirjasta, sovellus ilmoittaa lähettäjän nimen (esim. "WHATSUP VIESTI Peksu").
               - Jos lähettäjää ei ole luettelossa, kuuluu vain "WHATSUP VIESTI" tai "MESSENGER VIESTI".
 
             • SÄHKÖPOSTI:
-              - Sovellus ilmoittaa saapuneesta sähköpostista ja sen lähettäjästä (esim. "SÄHKÖPOSTI Matti Virtanen").
+              - Sovellus tunnistaa saapuneen sähköpostin ja huutaa lähettäjän nimen (esim. "SÄHKÖPOSTI Matti Meikäläinen").
 
             ━━━━━━━━━━━━━━━━━━━━━━
             3. TOISTO JA KUITTAUS
             ━━━━━━━━━━━━━━━━━━━━━━
             • TOISTOKERRAT JA -VÄLI:
-              Valitse kuinka monta kertaa (1-10) ja kuinka usein (1-10 min) ilmoitus toistetaan, jos viestiä ei heti huomata.
+              Valitse, kuinka monta kertaa (1-10) ja kuinka usein (1-10 min) ilmoitus toistetaan, jos viestiä ei heti huomata.
             • MITEN TOISTO SAMMUTETAAN:
-              Viestin toistohälytys kuittaantuu ja sammuu automaattisesti, kun viesti avataan tai pyyhkäistään pois.
+              Viestin toistohälytys kuittaantuu ja sammuu automaattisesti, kun viesti tai sähköposti avataan tai pyyhkäistään pois.
 
             ━━━━━━━━━━━━━━━━━━━━━━
-            4. VIESTILOKI
+            4. ÄÄNENVOIMAKKUUDEN SÄÄTÖ
+            ━━━━━━━━━━━━━━━━━━━━━━
+            • Voit määrittää liukusäätimellä, kuinka suurella äänellä ilmoitukset huudetaan (10 % – 100 %).
+            • Kokeile äänenvoimakkuutta painamalla "KOKEILE ÄÄNTÄ" ja muista tallentaa painamalla "TALLENNA ASETUKSET"!
+
+            ━━━━━━━━━━━━━━━━━━━━━━
+            5. VIESTILOKI
             ━━━━━━━━━━━━━━━━━━━━━━
             • Paina päänäytön alalaidasta "LOKI"-painiketta.
             • Lokista näet kaikki viestien lähettäjät, kuinka monta viestiä kukin on lähettänyt yhteensä ja minä päivinä.
             • Lokin voi tyhjentää pitämällä "NOLLAA LOKI" -painiketta pohjassa yhden sekunnin ajan (estää vahinkopainallukset).
 
             ━━━━━━━━━━━━━━━━━━━━━━
-            5. TALLENNUS JA KOKEILU
+            6. TALLENNUS JA KOKEILU
             ━━━━━━━━━━━━━━━━━━━━━━
-            • Paina "KOKEILE ÄÄNTÄ" testataksesi ääntä.
-            • Muutosten jälkeen paina aina "TALLENNA ASETUKSET"!
+            • Paina "KOKEILE ÄÄNTÄ" testataksesi ääntä kaiuttimesta.
+            • Muutosten jälkeen muista aina painaa "TALLENNA ASETUKSET"!
         """.trimIndent()
 
         val scrollView = ScrollView(this).apply {

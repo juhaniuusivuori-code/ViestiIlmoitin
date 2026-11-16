@@ -55,9 +55,13 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
             return
         }
 
+        val prefs = getSharedPreferences("Asetukset", Context.MODE_PRIVATE)
+        val volumePercent = prefs.getInt("volume_percent", 100) / 100f
+
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
         val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, maxVol, 0)
+        val targetVol = (maxVol * volumePercent).toInt().coerceIn(1, maxVol)
+        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, targetVol, 0)
 
         if (isTtsReady) {
             tts?.speak(viestiTeksti, TextToSpeech.QUEUE_FLUSH, null, "ALERT_ID")
@@ -74,7 +78,7 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
     private fun onkoViestiLuettu(): Boolean {
         // Sovellusten (WhatsApp, Messenger, Sähköposti) ilmoitukset kuittaantuvat
         // kun käyttäjä avaa viestin tai pyyhkii sen pois (onNotificationRemoved)
-        if (lahettaja.startsWith("com.") || lahettaja.startsWith("net.")) {
+        if (lahettaja.startsWith("com.") || lahettaja.startsWith("net.") || lahettaja.startsWith("ch.")) {
             return false
         }
 
