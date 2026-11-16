@@ -70,10 +70,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     private fun paivitaIlmoitusLuvanTila() {
         val onkoLupa = NotificationManagerCompat.getEnabledListenerPackages(this).contains(packageName)
         if (onkoLupa) {
-            btnNotificationPermission.text = "✅ WHATSAPP JA MESSENGER AKTIIVISENA"
+            btnNotificationPermission.text = "✅ ILMOITUSKUUNTELU ON PÄÄLLÄ\n(WhatsApp ja Messenger aktivoitu)"
             btnNotificationPermission.setBackgroundColor(android.graphics.Color.parseColor("#388E3C"))
         } else {
-            btnNotificationPermission.text = "🔔 OTA WHATSAPP JA MESSENGER KÄYTTÖÖN"
+            btnNotificationPermission.text = "🔔 SALLI ILMOITUKSET\n(Paina tästä ja valitse listasta: Viesti-Ilmoitin)"
             btnNotificationPermission.setBackgroundColor(android.graphics.Color.parseColor("#FF8F00"))
         }
     }
