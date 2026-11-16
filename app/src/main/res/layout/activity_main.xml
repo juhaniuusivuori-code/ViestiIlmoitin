@@ -14,9 +14,9 @@
         android:textStyle="bold"
         android:gravity="center"
         android:textColor="#1A237E"
-        android:layout_marginBottom="4dp" />
+        android:layout_marginBottom="3dp" />
 
-    <!-- Tekstiviesti: Ennen ja jälkeen rinnakkain -->
+    <!-- 1. Tekstiviesti: Ennen nimeä ja nimen jälkeen rinnakkain -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -43,6 +43,9 @@
                 android:background="#FFFFFF"
                 android:padding="5dp"
                 android:hint="VIESTI TULI "
+                android:singleLine="true"
+                android:inputType="text"
+                android:scrollHorizontally="true"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -66,65 +69,36 @@
                 android:background="#FFFFFF"
                 android:padding="5dp"
                 android:hint="(valinnainen)"
+                android:singleLine="true"
+                android:inputType="text"
+                android:scrollHorizontally="true"
                 android:textSize="13sp" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Tuntematon numero ja Sähköposti rinnakkain -->
-    <LinearLayout
-        android:layout_width="match_parent"
+    <!-- 2. Tuntematon numero KOKO LEVEYDELLÄ (mahtuu pitkäkin teksti leikkaantumatta) -->
+    <TextView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="3dp">
+        android:text="Tuntematon numero:"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:textColor="#333333" />
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginEnd="4dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Tuntematon numero:"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:textColor="#333333" />
-            <EditText
-                android:id="@+id/editUnknown"
-                android:layout_width="match_parent"
-                android:layout_height="36dp"
-                android:background="#FFFFFF"
-                android:padding="5dp"
-                android:hint="VIESTI NUMEROSTA "
-                android:textSize="13sp" />
-        </LinearLayout>
+    <EditText
+        android:id="@+id/editUnknown"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:background="#FFFFFF"
+        android:padding="5dp"
+        android:hint="VIESTI NUMEROSTA "
+        android:singleLine="true"
+        android:inputType="text"
+        android:scrollHorizontally="true"
+        android:textSize="13sp"
+        android:layout_marginBottom="3dp" />
 
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical"
-            android:layout_marginStart="4dp">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Sähköposti-huuto:"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:textColor="#D81B60" />
-            <EditText
-                android:id="@+id/editEmail"
-                android:layout_width="match_parent"
-                android:layout_height="36dp"
-                android:background="#FFFFFF"
-                android:padding="5dp"
-                android:hint="SÄHKÖPOSTI"
-                android:textSize="13sp" />
-        </LinearLayout>
-    </LinearLayout>
-
-    <!-- WhatsApp ja Messenger rinnakkain -->
+    <!-- 3. WhatsApp ja Messenger rinnakkain -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -151,6 +125,9 @@
                 android:background="#FFFFFF"
                 android:padding="5dp"
                 android:hint="WHATSUP VIESTI"
+                android:singleLine="true"
+                android:inputType="text"
+                android:scrollHorizontally="true"
                 android:textSize="13sp" />
         </LinearLayout>
 
@@ -174,16 +151,41 @@
                 android:background="#FFFFFF"
                 android:padding="5dp"
                 android:hint="MESSENGER VIESTI"
+                android:singleLine="true"
+                android:inputType="text"
+                android:scrollHorizontally="true"
                 android:textSize="13sp" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Alasvetovalikot rinnakkain -->
+    <!-- 4. Sähköposti-huuto KOKO LEVEYDELLÄ -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sähköposti-huuto:"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        android:textColor="#D81B60" />
+
+    <EditText
+        android:id="@+id/editEmail"
+        android:layout_width="match_parent"
+        android:layout_height="36dp"
+        android:background="#FFFFFF"
+        android:padding="5dp"
+        android:hint="SÄHKÖPOSTI"
+        android:singleLine="true"
+        android:inputType="text"
+        android:scrollHorizontally="true"
+        android:textSize="13sp"
+        android:layout_marginBottom="3dp" />
+
+    <!-- 5. Alasvetovalikot rinnakkain -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginBottom="4dp">
+        android:layout_marginBottom="3dp">
 
         <LinearLayout
             android:layout_width="0dp"
@@ -200,7 +202,7 @@
             <Spinner
                 android:id="@+id/spinnerRepeats"
                 android:layout_width="match_parent"
-                android:layout_height="36dp"
+                android:layout_height="34dp"
                 android:background="#FFFFFF" />
         </LinearLayout>
 
@@ -219,26 +221,74 @@
             <Spinner
                 android:id="@+id/spinnerInterval"
                 android:layout_width="match_parent"
-                android:layout_height="36dp"
+                android:layout_height="34dp"
                 android:background="#FFFFFF" />
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Nappi ilmoitusluvan myöntämiseen -->
+    <!-- 6. Nappi ilmoitusluvan myöntämiseen -->
     <Button
         android:id="@+id/btnNotificationPermission"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="40dp"
+        android:minHeight="38dp"
         android:padding="2dp"
         android:text="🔔 SALLI ILMOITUKSET\n(Paina tästä ja valitse: Viesti-Ilmoitin)"
         android:textSize="11sp"
         android:textStyle="bold"
         android:backgroundTint="#FF8F00"
         android:textColor="#FFFFFF"
+        android:layout_marginBottom="3dp" />
+
+    <!-- 7. Kokeile ääntä -->
+    <Button
+        android:id="@+id/btnTest"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="🔊   KOKEILE ÄÄNTÄ"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:backgroundTint="#00897B"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="3dp" />
+
+    <!-- 8. Tallenna asetukset -->
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="💾   TALLENNA ASETUKSET"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:backgroundTint="#1E88E5"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="3dp" />
+
+    <!-- 9. Ohje -->
+    <Button
+        android:id="@+id/btnHelp"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="⚙️   O H J E"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:backgroundTint="#37474F"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="3dp" />
+
+    <!-- 10. Loki -->
+    <Button
+        android:id="@+id/btnLog"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:text="📋   L O K I"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:backgroundTint="#546E7A"
+        android:textColor="#FFFFFF"
         android:layout_marginBottom="4dp" />
 
-    <!-- Äänenvoimakkuuden liukusäädin -->
+    <!-- 11. ALIMMAISEKSI: VOLUME liukusäädin lokin alapuolella -->
     <TextView
         android:id="@+id/tvVolumeLabel"
         android:layout_width="match_parent"
@@ -254,54 +304,6 @@
         android:layout_width="match_parent"
         android:layout_height="26dp"
         android:max="100"
-        android:progress="100"
-        android:layout_marginBottom="4dp" />
-
-    <!-- 1. Kokeile ääntä -->
-    <Button
-        android:id="@+id/btnTest"
-        android:layout_width="match_parent"
-        android:layout_height="42dp"
-        android:text="🔊   KOKEILE ÄÄNTÄ"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:backgroundTint="#00897B"
-        android:textColor="#FFFFFF"
-        android:layout_marginBottom="4dp" />
-
-    <!-- 2. Tallenna asetukset -->
-    <Button
-        android:id="@+id/btnSave"
-        android:layout_width="match_parent"
-        android:layout_height="42dp"
-        android:text="💾   TALLENNA ASETUKSET"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:backgroundTint="#1E88E5"
-        android:textColor="#FFFFFF"
-        android:layout_marginBottom="4dp" />
-
-    <!-- 3. Ohje -->
-    <Button
-        android:id="@+id/btnHelp"
-        android:layout_width="match_parent"
-        android:layout_height="42dp"
-        android:text="⚙️   O H J E"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        android:backgroundTint="#37474F"
-        android:textColor="#FFFFFF"
-        android:layout_marginBottom="4dp" />
-
-    <!-- 4. Loki alimmaisena -->
-    <Button
-        android:id="@+id/btnLog"
-        android:layout_width="match_parent"
-        android:layout_height="42dp"
-        android:text="📋   L O K I"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        android:backgroundTint="#546E7A"
-        android:textColor="#FFFFFF" />
+        android:progress="100" />
 
 </LinearLayout>
