@@ -34,7 +34,7 @@ class AppNotificationListener : NotificationListenerService() {
         var logiNimi: String? = null
         var sovelluksenNimi: String? = null
 
-        val rawTitle = notification.extras.getString(Notification.EXTRA_TITLE)?.trim() ?: ""
+        val rawTitle = notification.extras?.getCharSequence(Notification.EXTRA_TITLE)?.toString()?.trim() ?: ""
 
         // 1. WHATSAPP
         if (pkg == "com.whatsapp" || pkg == "com.whatsapp.w4b") {
@@ -105,7 +105,6 @@ class AppNotificationListener : NotificationListenerService() {
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         super.onNotificationRemoved(sbn)
         val pkg = sbn?.packageName ?: return
-        // Jos käyttäjä avaa tai poistaa ilmoituksen, toisto lakkaa heti
         if (pkg.contains("whatsapp") || pkg.contains("orca") || pkg.contains("mail") || pkg.contains("gm") || pkg.contains("outlook")) {
             val stopIntent = Intent(this, AlertService::class.java).apply {
                 action = "KUITTAA"

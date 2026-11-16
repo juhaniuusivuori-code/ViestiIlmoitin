@@ -63,30 +63,29 @@ class LogDatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_N
         val db = readableDatabase
         val dateFormat = SimpleDateFormat("d.M.yyyy", Locale("fi", "FI"))
 
-        // Haetaan kaikki merkinnät lajiteltuna ajan mukaan
         val cursor = db.rawQuery(
             "SELECT $COL_SENDER, $COL_APP_TYPE, $COL_TIMESTAMP FROM $TABLE_LOG ORDER BY $COL_TIMESTAMP DESC",
             null
         )
 
-        // Ryhmitellään muistissa lähettäjän ja sovelluksen mukaan
         val senderMap = mutableMapOf<Pair<String, String>, MutableList<Long>>()
 
-        cursor.use {
-            while (it.moveToNext()) {
-                val sender = it.getString(0)
-                val appType = it.getString(1)
-                val timestamp = it.getLong(2)
+        try {
+            while (cursor.moveToNext()) {
+                val sender = cursor.getString(0) ?: "Tuntematon"
+                val appType = cursor.getString(1) ?: "Viesti"
+                val timestamp = cursor.getLong(2)
                 val key = Pair(sender, appType)
                 senderMap.getOrPut(key) { mutableListOf() }.add(timestamp)
             }
+        } finally {
+            cursor.close()
         }
 
         for ((key, timestamps) in senderMap) {
             val (sender, appType) = key
             val totalCount = timestamps.size
 
-            // Ryhmitellään päivät ja lasketaan kappaleet kullekin päivälle
             val dateCounts = mutableMapOf<String, Int>()
             for (ts in timestamps) {
                 val pvm = dateFormat.format(Date(ts))
