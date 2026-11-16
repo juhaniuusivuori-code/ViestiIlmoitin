@@ -12,6 +12,7 @@ import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import androidx.core.app.NotificationCompat
 import java.util.Locale
 
@@ -23,6 +24,9 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
     private var repeatsLeft: Int = 0
     private var intervalMinutes: Int = 1
     private var lahettaja: String = ""
+    private var onTekstiviesti: Boolean = false
+    private var ttsYrityksia = 0
+    private var lopetusOdottaa = false
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -33,6 +37,9 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Android vaatii startForeground-kutsun aina, kun palvelu käynnistetään startForegroundService-kutsulla
+        naytaKuittausIlmoitus(intent?.getStringExtra("MESSAGE") ?: "")
+
         if (intent?.action == "KUITTAA" || intent?.action == "STOP") {
             lopetaHalytys()
             return Service.START_NOT_STICKY
@@ -44,12 +51,17 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
             return Service.START_NOT_STICKY
         }
 
+        // Uusi viesti korvaa edellisen: nollataan vanhat ajastukset ettei toistoja tule päällekkäin
+        handler.removeCallbacksAndMessages(null)
+        lopetusOdottaa = false
+        ttsYrityksia = 0
+
         viestiTeksti = intent?.getStringExtra("MESSAGE") ?: ""
         repeatsLeft = intent?.getIntExtra("REPEATS_LEFT", 0) ?: 0
         intervalMinutes = intent?.getIntExtra("INTERVAL_MINUTES", 1) ?: 1
         lahettaja = intent?.getStringExtra("SENDER") ?: ""
+        onTekstiviesti = intent?.getBooleanExtra("IS_SMS", false) ?: false
 
-        naytaKuittausIlmoitus()
         handler.postDelayed({ puhuLujallaAanella() }, 1000)
 
         return Service.START_NOT_STICKY
@@ -67,6 +79,17 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
             return
         }
 
+        // Jos puhesyntetisaattori ei ole vielä valmis, yritetään uudelleen hetken päästä
+        if (!isTtsReady) {
+            ttsYrityksia++
+            if (ttsYrityksia <= 10) {
+                handler.postDelayed({ puhuLujallaAanella() }, 500)
+            } else {
+                lopetaHalytys()
+            }
+            return
+        }
+
         val volumePercent = prefs.getInt("volume_percent", 100) / 100f
 
         val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -74,22 +97,22 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
         val targetVol = (maxVol * volumePercent).toInt().coerceIn(1, maxVol)
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, targetVol, 0)
 
-        if (isTtsReady) {
-            tts?.speak(viestiTeksti, TextToSpeech.QUEUE_FLUSH, null, "ALERT_ID")
-        }
+        tts?.speak(viestiTeksti, TextToSpeech.QUEUE_FLUSH, null, "ALERT_ID")
 
         if (repeatsLeft > 0) {
             repeatsLeft--
             handler.postDelayed({ puhuLujallaAanella() }, intervalMinutes * 60 * 1000L)
         } else {
-            lopetaHalytys()
+            // Viimeinen kuulutus: odotetaan että puhe ehtii loppua ennen palvelun sulkemista
+            lopetusOdottaa = true
+            handler.postDelayed({ lopetaHalytys() }, 20000)
         }
     }
 
     private fun onkoViestiLuettu(): Boolean {
         // Sovellusten (WhatsApp, Messenger, Sähköposti) ilmoitukset kuittaantuvat
         // kun käyttäjä avaa viestin tai pyyhkii sen pois (onNotificationRemoved)
-        if (lahettaja.startsWith("com.") || lahettaja.startsWith("net.") || lahettaja.startsWith("ch.")) {
+        if (!onTekstiviesti) {
             return false
         }
 
@@ -104,10 +127,10 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
         }
     }
 
-    private fun naytaKuittausIlmoitus() {
+    private fun naytaKuittausIlmoitus(teksti: String) {
         val notification = NotificationCompat.Builder(this, "HalytysKanava")
             .setContentTitle("Saapui viesti!")
-            .setContentText(viestiTeksti)
+            .setContentText(teksti)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
@@ -120,7 +143,8 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
         handler.removeCallbacksAndMessages(null)
         try {
             tts?.stop()
-        } catch (e: Exception) {}
+        } catch (e: Exception) {
+        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             stopForeground(Service.STOP_FOREGROUND_REMOVE)
         } else {
@@ -141,6 +165,20 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
             tts?.language = Locale("fi", "FI")
+            tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                override fun onStart(utteranceId: String?) {}
+                override fun onDone(utteranceId: String?) {
+                    if (lopetusOdottaa) {
+                        handler.post { lopetaHalytys() }
+                    }
+                }
+                @Deprecated("Deprecated in Java")
+                override fun onError(utteranceId: String?) {
+                    if (lopetusOdottaa) {
+                        handler.post { lopetaHalytys() }
+                    }
+                }
+            })
             isTtsReady = true
         }
     }

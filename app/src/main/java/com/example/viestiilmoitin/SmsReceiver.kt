@@ -43,6 +43,7 @@ class SmsReceiver : BroadcastReceiver() {
                     putExtra("REPEATS_LEFT", repeats)
                     putExtra("INTERVAL_MINUTES", intervalMinutes)
                     putExtra("SENDER", lahettajaNumero)
+                    putExtra("IS_SMS", true)
                 }
                 ContextCompat.startForegroundService(context, serviceIntent)
             }

@@ -20,7 +20,7 @@ class AppNotificationListener : NotificationListenerService() {
         if (sbn == null) return
 
         val pkg = sbn.packageName ?: return
-        val notification = sbn.notification ?: return
+        val notification = sbn?.notification ?: return
 
         // 1. Ohitetaan taustatoiminnot (kuten puhelut, lataukset) ja ryhmäkoonnit
         if (notification.flags and Notification.FLAG_ONGOING_EVENT != 0) return
@@ -118,7 +118,11 @@ class AppNotificationListener : NotificationListenerService() {
     override fun onNotificationRemoved(sbn: StatusBarNotification?) {
         super.onNotificationRemoved(sbn)
         val pkg = sbn?.packageName ?: return
-        if (pkg.contains("whatsapp") || pkg.contains("orca") || pkg.contains("mail") || pkg.contains("gm") || pkg.contains("outlook")) {
+        val notification = sbn?.notification
+        val onViestiSovellus = pkg == "com.whatsapp" || pkg == "com.whatsapp.w4b" ||
+            pkg == "com.facebook.orca" || pkg == "com.facebook.mlite" ||
+            (notification != null && onkoSahkoposti(pkg, notification))
+        if (onViestiSovellus) {
             val stopIntent = Intent(this, AlertService::class.java).apply {
                 action = "KUITTAA"
             }
@@ -201,14 +205,20 @@ class AppNotificationListener : NotificationListenerService() {
 
     private fun onkoSahkoposti(pkg: String, notification: Notification): Boolean {
         val p = pkg.lowercase()
-        if (p.contains("gm") ||
-            p.contains("outlook") ||
+        // Ei Google Play -palveluita (com.google.android.gms) eikä muita sovelluksia, joiden nimessä sattuu olemaan "gm"
+        if (p == "com.google.android.gms") return false
+        if (p == "com.google.android.gm" ||
+            p == "com.google.android.apps.gmail" ||
+            p.startsWith("com.microsoft.office.outlook") ||
             p.contains("email") ||
-            p.contains("mail") ||
-            p.contains("k9") ||
+            p.endsWith(".mail") ||
+            p.contains(".mail.") ||
+            p.contains("protonmail") ||
+            p.contains("proton.mail") ||
+            p.contains("fsck.k9") ||
             p.contains("thunderbird") ||
-            p.contains("proton") ||
-            p.contains("yahoo")
+            p.contains("yahoo.mobile.client.android.mail") ||
+            p.contains("android.gm")
         ) {
             return true
         }
