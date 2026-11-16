@@ -34,12 +34,11 @@ class LokiActivity : AppCompatActivity() {
             finish()
         }
 
-        // 1 sekunnin viiveen toteutus nollaukselle
         val resetRunnable = Runnable {
             isLongPressTriggered = true
             dbHelper.tyhjennaLoki()
             paivitaLokiNakyma()
-            Toast.makeText(this, "Loki nollattu onnistuneesti!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this@LokiActivity, "Loki nollattu onnistuneesti!", Toast.LENGTH_SHORT).show()
         }
 
         btnResetLog.setOnTouchListener { _, event ->
@@ -54,7 +53,7 @@ class LokiActivity : AppCompatActivity() {
                     handler.removeCallbacks(resetRunnable)
                     btnResetLog.text = "🗑️  NOLLAA LOKI (Pidä pohjassa 1 s)"
                     if (!isLongPressTriggered && event.action == MotionEvent.ACTION_UP) {
-                        Toast.makeText(this, "Pidä nappia pohjassa 1 sekunti nollataksesi", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this@LokiActivity, "Pidä nappia pohjassa 1 sekunti nollataksesi", Toast.LENGTH_SHORT).show()
                     }
                     true
                 }

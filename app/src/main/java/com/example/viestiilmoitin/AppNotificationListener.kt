@@ -4,6 +4,7 @@ import android.app.Notification
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.provider.ContactsContract
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
@@ -135,11 +136,6 @@ class AppNotificationListener : NotificationListenerService() {
         ) {
             return true
         }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            if (notification.category == Notification.CATEGORY_EMAIL) {
-                return true
-            }
-        }
-        return false
+        return notification.category == Notification.CATEGORY_EMAIL
     }
 }
