@@ -1,11 +1,10 @@
 package com.example.viestiilmoitin
 
 import android.app.Notification
+import android.app.NotificationManager
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
-import android.provider.ContactsContract
 import android.service.notification.NotificationListenerService
 import android.service.notification.StatusBarNotification
 import androidx.core.content.ContextCompat
@@ -23,9 +22,20 @@ class AppNotificationListener : NotificationListenerService() {
         val pkg = sbn.packageName ?: return
         val notification = sbn.notification ?: return
 
-        // Ohitetaan taustatoiminnot (kuten puhelut tai lataukset) ja ryhmäkoonnit
+        // 1. Ohitetaan taustatoiminnot (kuten puhelut, lataukset) ja ryhmäkoonnit
         if (notification.flags and Notification.FLAG_ONGOING_EVENT != 0) return
         if (notification.flags and Notification.FLAG_GROUP_SUMMARY != 0) return
+
+        // 2. Ohitetaan hiljaiset ilmoitukset (tapahtuu kun sovellus on auki ruudulla ja kirjoitellaan livenä)
+        val ranking = Ranking()
+        if (currentRanking != null && currentRanking.getRanking(sbn.key, ranking)) {
+            if (ranking.importance < NotificationManager.IMPORTANCE_DEFAULT &&
+                ranking.importance != NotificationManager.IMPORTANCE_UNSPECIFIED
+            ) {
+                // Sovellus on parhaillaan auki ruudulla ja viesti näkyy livenä -> ei huudeta
+                return
+            }
+        }
 
         val currentTime = System.currentTimeMillis()
         val prefs = getSharedPreferences("Asetukset", Context.MODE_PRIVATE)
@@ -34,21 +44,19 @@ class AppNotificationListener : NotificationListenerService() {
         var logiNimi: String? = null
         var sovelluksenNimi: String? = null
 
-        val rawTitle = notification.extras?.getCharSequence(Notification.EXTRA_TITLE)?.toString()?.trim() ?: ""
-
         // 1. WHATSAPP
         if (pkg == "com.whatsapp" || pkg == "com.whatsapp.w4b") {
             if (currentTime - lastWhatsAppTime > 3000) {
                 lastWhatsAppTime = currentTime
                 val baseText = prefs.getString("whatsapp_text", "WHATSUP VIESTI") ?: "WHATSUP VIESTI"
-                val loytyyLuettelosta = onkoYhteystiedoissa(this, rawTitle)
+                val lahettaja = etsiViestinLahettaja(notification)
 
-                kuulutusTeksti = if (loytyyLuettelosta && rawTitle.isNotEmpty()) {
-                    "$baseText $rawTitle".trim()
+                kuulutusTeksti = if (lahettaja.isNotEmpty()) {
+                    "$baseText $lahettaja".trim()
                 } else {
                     baseText
                 }
-                logiNimi = if (rawTitle.isNotEmpty()) rawTitle else "Tuntematon"
+                logiNimi = if (lahettaja.isNotEmpty()) lahettaja else "Tuntematon"
                 sovelluksenNimi = "WhatsApp"
             }
         }
@@ -57,14 +65,14 @@ class AppNotificationListener : NotificationListenerService() {
             if (currentTime - lastMessengerTime > 3000) {
                 lastMessengerTime = currentTime
                 val baseText = prefs.getString("messenger_text", "MESSENGER VIESTI") ?: "MESSENGER VIESTI"
-                val loytyyLuettelosta = onkoYhteystiedoissa(this, rawTitle)
+                val lahettaja = etsiViestinLahettaja(notification)
 
-                kuulutusTeksti = if (loytyyLuettelosta && rawTitle.isNotEmpty()) {
-                    "$baseText $rawTitle".trim()
+                kuulutusTeksti = if (lahettaja.isNotEmpty()) {
+                    "$baseText $lahettaja".trim()
                 } else {
                     baseText
                 }
-                logiNimi = if (rawTitle.isNotEmpty()) rawTitle else "Tuntematon"
+                logiNimi = if (lahettaja.isNotEmpty()) lahettaja else "Tuntematon"
                 sovelluksenNimi = "Messenger"
             }
         }
@@ -86,7 +94,6 @@ class AppNotificationListener : NotificationListenerService() {
         }
 
         if (kuulutusTeksti != null) {
-            // Lisätään lokiin
             if (logiNimi != null && sovelluksenNimi != null) {
                 LogDatabaseHelper(this).lisaaMerkinta(logiNimi, sovelluksenNimi)
             }
@@ -113,6 +120,21 @@ class AppNotificationListener : NotificationListenerService() {
             }
             startService(stopIntent)
         }
+    }
+
+    private fun etsiViestinLahettaja(notification: Notification): String {
+        val extras = notification.extras ?: return ""
+
+        val title = extras.getCharSequence(Notification.EXTRA_TITLE)?.toString()?.trim() ?: ""
+        val titleBig = extras.getCharSequence("android.title.big")?.toString()?.trim() ?: ""
+
+        val candidate = when {
+            title.isNotEmpty() && !onkoYleisOtsikko(title) -> title
+            titleBig.isNotEmpty() && !onkoYleisOtsikko(titleBig) -> titleBig
+            else -> title
+        }
+
+        return siistiLahettajanNimi(candidate)
     }
 
     private fun etsiSahkopostinLahettaja(notification: Notification): String {
@@ -171,19 +193,6 @@ class AppNotificationListener : NotificationListenerService() {
             s = raw.substringBefore("@").replace(".", " ").trim()
         }
         return s.ifEmpty { raw }
-    }
-
-    private fun onkoYhteystiedoissa(context: Context, nimi: String): Boolean {
-        if (nimi.isBlank()) return false
-        return try {
-            val uri = Uri.withAppendedPath(ContactsContract.Contacts.CONTENT_FILTER_URI, Uri.encode(nimi))
-            val cursor = context.contentResolver.query(uri, arrayOf(ContactsContract.Contacts._ID), null, null, null)
-            val loytyi = (cursor?.count ?: 0) > 0
-            cursor?.close()
-            loytyi
-        } catch (e: Exception) {
-            false
-        }
     }
 
     private fun onkoSahkoposti(pkg: String, notification: Notification): Boolean {

@@ -151,7 +151,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         val targetVolume = (maxVolume * volPercent).toInt().coerceIn(1, maxVolume)
         audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, targetVolume, 0)
 
-        val testiLause = "${editPrefix.text} Pekka Virtanen. ${editWhatsApp.text} Peksu. ${editEmail.text} Matti Meikäläinen.".trim()
+        val testiLause = "${editPrefix.text} Pekka Virtanen. ${editWhatsApp.text} Peksu. ${editMessenger.text} Matti Meikäläinen. ${editEmail.text} Liisa.".trim()
         tts?.speak(testiLause, TextToSpeech.QUEUE_FLUSH, null, "TEST_ID")
     }
 
@@ -177,17 +177,17 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
               Mene: Puhelimen Asetukset ➔ Sovellukset ➔ Viesti-Ilmoitin ➔ Paina oikeasta yläkulmasta 3 pistettä ➔ Valitse "Salli rajoitetut asetukset". Tämän jälkeen luvan saa kytkettyä päälle.
 
             ━━━━━━━━━━━━━━━━━━━━━━
-            2. VIESTIEN HUUTOLAUSEET
+            2. VIESTIEN HUUTOLAUSEET JA LÄHETTÄJÄT
             ━━━━━━━━━━━━━━━━━━━━━━
             • TEKSTIVIESTI:
               - Ennen nimeä: Esim. "VIESTI TULI "
               - Nimen jälkeen: Esim. " LAITTOI VIESTIN" (tai jätä tyhjäksi).
               - Tuntematon numero: Mitä huudetaan, jos numeroa ei löydy osoitekirjasta (esim. "VIESTI NUMEROSTA ").
-              (Voit muuttaa henkilön lempinimen suoraan puhelimen omaan osoitekirjaan).
+              (Voit muuttaa henkilön nimen tai lempinimen suoraan puhelimen omaan osoitekirjaan).
 
             • WHATSAPP JA MESSENGER:
-              - Jos lähettäjä löytyy puhelimen osoitekirjasta, sovellus ilmoittaa lähettäjän nimen (esim. "WHATSUP VIESTI Peksu").
-              - Jos lähettäjää ei ole luettelossa, kuuluu vain "WHATSUP VIESTI" tai "MESSENGER VIESTI".
+              - Sovellus ilmoittaa aina saapuneen viestin lähettäjän (esim. "WHATSUP VIESTI Peksu" tai "MESSENGER VIESTI Matti").
+              - HUOMIO: Jos olet parhaillaan kirjoittelemassa kyseisessä sovelluksessa (sovellus on auki ruudulla), puhelin ei huuda ilmoitusta, koska näet viestin itse livenä.
 
             • SÄHKÖPOSTI:
               - Sovellus tunnistaa saapuneen sähköpostin ja huutaa lähettäjän nimen (esim. "SÄHKÖPOSTI Matti Meikäläinen").
@@ -203,13 +203,13 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             ━━━━━━━━━━━━━━━━━━━━━━
             4. ÄÄNENVOIMAKKUUDEN SÄÄTÖ
             ━━━━━━━━━━━━━━━━━━━━━━
-            • Voit määrittää liukusäätimellä, kuinka suurella äänellä ilmoitukset huudetaan (10 % – 100 %).
+            • Ruudun alalaidassa olevalla liukusäätimellä voit määrittää äänenvoimakkuuden (10 % – 100 %).
             • Kokeile äänenvoimakkuutta painamalla "KOKEILE ÄÄNTÄ" ja muista tallentaa painamalla "TALLENNA ASETUKSET"!
 
             ━━━━━━━━━━━━━━━━━━━━━━
             5. VIESTILOKI
             ━━━━━━━━━━━━━━━━━━━━━━
-            • Paina päänäytön alalaidasta "LOKI"-painiketta.
+            • Paina päänäytöltä "LOKI"-painiketta.
             • Lokista näet kaikki viestien lähettäjät, kuinka monta viestiä kukin on lähettänyt yhteensä ja minä päivinä.
             • Lokin voi tyhjentää pitämällä "NOLLAA LOKI" -painiketta pohjassa yhden sekunnin ajan (estää vahinkopainallukset).
 
