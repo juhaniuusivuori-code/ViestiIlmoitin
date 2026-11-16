@@ -3,14 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="10dp"
+    android:padding="12dp"
     android:background="#F8F9FA">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="PUHUVA VIESTI-ILMOITIN"
-        android:textSize="19sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:gravity="center"
         android:textColor="#1A237E"
@@ -194,52 +194,44 @@
         android:id="@+id/btnNotificationPermission"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="44dp"
+        android:minHeight="46dp"
         android:padding="4dp"
         android:text="🔔 SALLI ILMOITUKSET\n(Paina tästä ja valitse: Viesti-Ilmoitin)"
         android:textSize="12sp"
         android:textStyle="bold"
         android:backgroundTint="#FF8F00"
         android:textColor="#FFFFFF"
-        android:layout_marginBottom="4dp" />
+        android:layout_marginBottom="6dp" />
 
-    <!-- Kokeile ja Tallenna rinnakkain tai peräkkäin -->
-    <LinearLayout
+    <!-- 1. Iso Kokeile-nappi (koko leveys, oma rivi) -->
+    <Button
+        android:id="@+id/btnTest"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="4dp">
+        android:layout_height="50dp"
+        android:text="🔊   KOKEILE ÄÄNTÄ"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:backgroundTint="#00897B"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="6dp" />
 
-        <Button
-            android:id="@+id/btnTest"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:text="🔊 KOKEILE ÄÄNTÄ"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:backgroundTint="#00897B"
-            android:textColor="#FFFFFF"
-            android:layout_marginEnd="3dp" />
+    <!-- 2. Iso Tallenna-nappi (koko leveys, täsmälleen sama koko) -->
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:text="💾   TALLENNA ASETUKSET"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        android:backgroundTint="#1E88E5"
+        android:textColor="#FFFFFF"
+        android:layout_marginBottom="6dp" />
 
-        <Button
-            android:id="@+id/btnSave"
-            android:layout_width="0dp"
-            android:layout_height="48dp"
-            android:layout_weight="1"
-            android:text="💾 TALLENNA"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:backgroundTint="#1E88E5"
-            android:textColor="#FFFFFF"
-            android:layout_marginStart="3dp" />
-    </LinearLayout>
-
-    <!-- Iso rattaan kuva ja teksti OHJE alimmaisena -->
+    <!-- 3. Iso Ohje-nappi (koko leveys, täsmälleen sama koko) -->
     <Button
         android:id="@+id/btnHelp"
         android:layout_width="match_parent"
-        android:layout_height="52dp"
+        android:layout_height="50dp"
         android:text="⚙️   O H J E"
         android:textSize="18sp"
         android:textStyle="bold"
