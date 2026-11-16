@@ -6,13 +6,16 @@
     android:padding="7dp"
     android:background="#F8F9FA">
 
-    <!-- 0. PÄÄLLÄ / POIS -PÄÄKYTKIN YLIMMÄISEKSI (1 s viive vahinkopainalluksia vastaan) -->
+    <!-- 0. PÄÄLLÄ / POIS -PÄÄKYTKIN YLIMMÄISEKSI (Korkea palkki, teksti ei katoa reunan alle) -->
     <Button
         android:id="@+id/btnMasterSwitch"
         android:layout_width="match_parent"
-        android:layout_height="44dp"
-        android:text="🟢  SOVELLUS ON PÄÄLLÄ (Pidä 1 s: SAMMUTA)"
-        android:textSize="13sp"
+        android:layout_height="wrap_content"
+        android:minHeight="54dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:text="🟢  SOVELLUS ON PÄÄLLÄ\n(Pidä 1 s: SAMMUTA)"
+        android:textSize="14sp"
         android:textStyle="bold"
         android:textColor="#FFFFFF"
         android:backgroundTint="#2E7D32"
@@ -252,11 +255,12 @@
         android:textColor="#FFFFFF"
         android:layout_marginBottom="3dp" />
 
-    <!-- 7. Kokeile ääntä -->
+    <!-- 7. Kokeile ääntä (Korkeampi palkki) -->
     <Button
         android:id="@+id/btnTest"
         android:layout_width="match_parent"
-        android:layout_height="38dp"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:text="🔊   KOKEILE ÄÄNTÄ"
         android:textSize="14sp"
         android:textStyle="bold"
@@ -264,23 +268,12 @@
         android:textColor="#FFFFFF"
         android:layout_marginBottom="3dp" />
 
-    <!-- 8. Tallenna asetukset -->
-    <Button
-        android:id="@+id/btnSave"
-        android:layout_width="match_parent"
-        android:layout_height="38dp"
-        android:text="💾   TALLENNA ASETUKSET"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:backgroundTint="#1E88E5"
-        android:textColor="#FFFFFF"
-        android:layout_marginBottom="3dp" />
-
-    <!-- 9. Ohje -->
+    <!-- 8. Ohje (Korkeampi palkki) -->
     <Button
         android:id="@+id/btnHelp"
         android:layout_width="match_parent"
-        android:layout_height="38dp"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:text="⚙️   O H J E"
         android:textSize="14sp"
         android:textStyle="bold"
@@ -288,11 +281,12 @@
         android:textColor="#FFFFFF"
         android:layout_marginBottom="3dp" />
 
-    <!-- 10. Loki -->
+    <!-- 9. Loki (Korkeampi palkki) -->
     <Button
         android:id="@+id/btnLog"
         android:layout_width="match_parent"
-        android:layout_height="38dp"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
         android:text="📋   L O K I"
         android:textSize="14sp"
         android:textStyle="bold"
@@ -300,7 +294,7 @@
         android:textColor="#FFFFFF"
         android:layout_marginBottom="3dp" />
 
-    <!-- 11. ALIMMAISEKSI: VOLUME liukusäädin lokin alapuolella -->
+    <!-- 10. VOLUME liukusäädin lokin alapuolella -->
     <TextView
         android:id="@+id/tvVolumeLabel"
         android:layout_width="match_parent"
@@ -316,6 +310,19 @@
         android:layout_width="match_parent"
         android:layout_height="24dp"
         android:max="100"
-        android:progress="100" />
+        android:progress="100"
+        android:layout_marginBottom="4dp" />
+
+    <!-- 11. ALIMMAISEKSI: Tallenna asetukset VOLUMEN alle (Korkea ja selkeä palkki) -->
+    <Button
+        android:id="@+id/btnSave"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="48dp"
+        android:text="💾   TALLENNA ASETUKSET"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:backgroundTint="#1E88E5"
+        android:textColor="#FFFFFF" />
 
 </LinearLayout>

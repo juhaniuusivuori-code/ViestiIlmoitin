@@ -156,10 +156,10 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
     private fun paivitaPaaKytkinNakyma(isEnabled: Boolean) {
         if (isEnabled) {
-            btnMasterSwitch.text = "🟢  SOVELLUS ON PÄÄLLÄ (Pidä 1 s: SAMMUTA)"
+            btnMasterSwitch.text = "🟢  SOVELLUS ON PÄÄLLÄ\n(Pidä 1 s: SAMMUTA)"
             btnMasterSwitch.backgroundTintList = ColorStateList.valueOf(android.graphics.Color.parseColor("#2E7D32"))
         } else {
-            btnMasterSwitch.text = "🔴  SOVELLUS ON POIS PÄÄLTÄ (Pidä 1 s: KÄYNNISTÄ)"
+            btnMasterSwitch.text = "🔴  SOVELLUS ON POIS PÄÄLTÄ\n(Pidä 1 s: KÄYNNISTÄ)"
             btnMasterSwitch.backgroundTintList = ColorStateList.valueOf(android.graphics.Color.parseColor("#C62828"))
         }
     }
@@ -282,8 +282,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             ━━━━━━━━━━━━━━━━━━━━━━
             5. ÄÄNENVOIMAKKUUDEN SÄÄTÖ
             ━━━━━━━━━━━━━━━━━━━━━━
-            • Ruudun alalaidassa olevalla liukusäätimellä voit määrittää äänenvoimakkuuden (10 % – 100 %).
-            • Kokeile äänenvoimakkuutta painamalla "KOKEILE ÄÄNTÄ" ja muista tallentaa painamalla "TALLENNA ASETUKSET"!
+            • Ruudun alaosassa olevalla liukusäätimellä voit määrittää äänenvoimakkuuden (10 % – 100 %).
+            • Kokeile äänenvoimakkuutta painamalla "KOKEILE ÄÄNTÄ".
 
             ━━━━━━━━━━━━━━━━━━━━━━
             6. VIESTILOKI
@@ -295,8 +295,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             ━━━━━━━━━━━━━━━━━━━━━━
             7. TALLENNUS JA KOKEILU
             ━━━━━━━━━━━━━━━━━━━━━━
-            • Paina "KOKEILE ÄÄNTÄ" testataksesi ääntä kaiuttimesta.
-            • Muutosten jälkeen muista aina painaa "TALLENNA ASETUKSET"!
+            • Aivan ruudun alimmaisena on suuri sininen painike: "TALLENNA ASETUKSET".
+            • Paina "KOKEILE ÄÄNTÄ" testataksesi ääntä kaiuttimesta ja muista aina lopuksi painaa alhaalta "TALLENNA ASETUKSET"!
         """.trimIndent()
 
         val scrollView = ScrollView(this).apply {
