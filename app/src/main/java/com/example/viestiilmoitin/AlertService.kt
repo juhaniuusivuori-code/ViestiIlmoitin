@@ -62,7 +62,9 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
         lahettaja = intent?.getStringExtra("SENDER") ?: ""
         onTekstiviesti = intent?.getBooleanExtra("IS_SMS", false) ?: false
 
-        handler.postDelayed({ puhuLujallaAanella() }, 1000)
+        // Odotetaan 2,3 sekuntia (1 - 1,5 s lisäviive), jotta puhelimen oma viestiääni ("pling")
+        // ehtii soida loppuun ennen kuin puhe alkaa
+        handler.postDelayed({ puhuLujallaAanella() }, 2300L)
 
         return Service.START_NOT_STICKY
     }
@@ -132,7 +134,8 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
             .setContentTitle("Saapui viesti!")
             .setContentText(teksti)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setSilent(true)
             .setAutoCancel(true)
             .build()
 
