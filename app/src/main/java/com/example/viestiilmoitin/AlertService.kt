@@ -5,9 +5,11 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.media.AudioAttributes
 import android.media.AudioManager
 import android.net.Uri
 import android.os.Build
+import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
@@ -27,6 +29,7 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
     private var onTekstiviesti: Boolean = false
     private var ttsYrityksia = 0
     private var lopetusOdottaa = false
+    private var alkuperainenHalytysAani: Int? = null
 
     private val handler = Handler(Looper.getMainLooper())
 
@@ -92,14 +95,26 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
             return
         }
 
-        val volumePercent = prefs.getInt("volume_percent", 100) / 100f
+        val volumePercent = (prefs.getInt("volume_percent", 100).coerceIn(10, 100)) / 100f
 
-        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-        val targetVol = (maxVol * volumePercent).toInt().coerceIn(1, maxVol)
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, targetVol, 0)
+        // Käytetään erillistä STREAM_ALARM-kanavaa eikä kosketa lainkaan STREAM_MUSIC-kanavaan,
+        // jotta muiden sovellusten (esim. TikTok, YouTube, radio) äänenvoimakkuus ei muutu.
+        try {
+            val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            if (alkuperainenHalytysAani == null) {
+                alkuperainenHalytysAani = audioManager.getStreamVolume(AudioManager.STREAM_ALARM)
+            }
+            val maxVol = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
+            val targetVol = (maxVol * volumePercent).toInt().coerceIn(1, maxVol)
+            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, targetVol, 0)
+        } catch (e: Exception) {
+        }
 
-        tts?.speak(viestiTeksti, TextToSpeech.QUEUE_FLUSH, null, "ALERT_ID")
+        val params = Bundle().apply {
+            putInt(TextToSpeech.Engine.KEY_PARAM_STREAM, AudioManager.STREAM_ALARM)
+            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
+        }
+        tts?.speak(viestiTeksti, TextToSpeech.QUEUE_FLUSH, params, "ALERT_ID")
 
         if (repeatsLeft > 0) {
             repeatsLeft--
@@ -108,6 +123,16 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
             // Viimeinen kuulutus: odotetaan että puhe ehtii loppua ennen palvelun sulkemista
             lopetusOdottaa = true
             handler.postDelayed({ lopetaHalytys() }, 20000)
+        }
+    }
+
+    private fun palautaAlkuperainenHalytysAani() {
+        val palautettava = alkuperainenHalytysAani ?: return
+        alkuperainenHalytysAani = null
+        try {
+            val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, palautettava, 0)
+        } catch (e: Exception) {
         }
     }
 
@@ -148,6 +173,7 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
             tts?.stop()
         } catch (e: Exception) {
         }
+        palautaAlkuperainenHalytysAani()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             stopForeground(Service.STOP_FOREGROUND_REMOVE)
         } else {
@@ -159,7 +185,7 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
 
     private fun luoIlmoitusKanava() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val kanava = NotificationChannel("HalytysKanava", "Viestihälytykset", NotificationManager.IMPORTANCE_HIGH)
+            val kanava = NotificationChannel("HalytysKanava", "Viestihälytykset", NotificationManager.IMPORTANCE_LOW)
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(kanava)
         }
@@ -168,17 +194,29 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
             tts?.language = Locale("fi", "FI")
+            tts?.setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build()
+            )
             tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
                 override fun onStart(utteranceId: String?) {}
                 override fun onDone(utteranceId: String?) {
-                    if (lopetusOdottaa) {
-                        handler.post { lopetaHalytys() }
+                    handler.post {
+                        palautaAlkuperainenHalytysAani()
+                        if (lopetusOdottaa) {
+                            lopetaHalytys()
+                        }
                     }
                 }
                 @Deprecated("Deprecated in Java")
                 override fun onError(utteranceId: String?) {
-                    if (lopetusOdottaa) {
-                        handler.post { lopetaHalytys() }
+                    handler.post {
+                        palautaAlkuperainenHalytysAani()
+                        if (lopetusOdottaa) {
+                            lopetaHalytys()
+                        }
                     }
                 }
             })
@@ -187,6 +225,7 @@ class AlertService : Service(), TextToSpeech.OnInitListener {
     }
 
     override fun onDestroy() {
+        palautaAlkuperainenHalytysAani()
         tts?.shutdown()
         super.onDestroy()
     }

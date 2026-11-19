@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.media.AudioAttributes
 import android.media.AudioManager
 import android.os.Build
 import android.os.Bundle
@@ -12,6 +13,7 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.speech.tts.TextToSpeech
+import android.speech.tts.UtteranceProgressListener
 import android.view.HapticFeedbackConstants
 import android.view.MotionEvent
 import android.widget.*
@@ -205,108 +207,37 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         prefs.apply()
     }
 
+    private var alkuperainenHalytysAani: Int? = null
+
     private fun soitaTestiAani() {
-        val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
-        val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
-        val volPercent = seekBarVolume.progress.coerceAtLeast(10) / 100f
-        val targetVolume = (maxVolume * volPercent).toInt().coerceIn(1, maxVolume)
-        audioManager.setStreamVolume(AudioManager.STREAM_MUSIC, targetVolume, 0)
+        val volPercent = (seekBarVolume.progress.coerceIn(10, 100)) / 100f
+        try {
+            val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            if (alkuperainenHalytysAani == null) {
+                alkuperainenHalytysAani = audioManager.getStreamVolume(AudioManager.STREAM_ALARM)
+            }
+            val maxVolume = audioManager.getStreamMaxVolume(AudioManager.STREAM_ALARM)
+            val targetVolume = (maxVolume * volPercent).toInt().coerceIn(1, maxVolume)
+            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, targetVolume, 0)
+        } catch (e: Exception) {
+        }
 
         val testiLause = "${editPrefix.text} Pekka Virtanen. ${editWhatsApp.text} Peksu. ${editMessenger.text} Matti Meikäläinen. ${editEmail.text} Liisa.".trim()
-        tts?.speak(testiLause, TextToSpeech.QUEUE_FLUSH, null, "TEST_ID")
+        val params = Bundle().apply {
+            putInt(TextToSpeech.Engine.KEY_PARAM_STREAM, AudioManager.STREAM_ALARM)
+            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1.0f)
+        }
+        tts?.speak(testiLause, TextToSpeech.QUEUE_FLUSH, params, "TEST_ID")
     }
 
-    private fun naytaOhjeet() {
-        val ohjeTeksti = """
-            Tervetuloa käyttämään Viesti-Ilmoitinta!
-            Tämä sovellus ilmoittaa saapuvista tekstiviesteistä, WhatsApp-, Messenger- ja sähköpostiviesteistä suurella äänellä.
-
-            ━━━━━━━━━━━━━━━━━━━━━━
-            1. PÄÄLLÄ / POIS -PÄÄKYTKIN
-            ━━━━━━━━━━━━━━━━━━━━━━
-            • Ruudun ylimmäisenä on pääkytkin, josta saat koko sovelluksen ilmoitukset päälle tai pois päältä.
-            • Painikkeessa on 1 sekunnin turvaviive vahinkopainallusten estämiseksi: pidä painiketta yhtäjaksoisesti pohjassa yhden sekunnin ajan vaihtaaksesi tilan.
-            • Kun kytkin on VIHREÄ (PÄÄLLÄ), sovellus kuuntelee ja huutaa saapuvat viestit.
-            • Kun kytkin on PUNAINEN (POIS PÄÄLTÄ), sovellus on täysin hiljainen eikä mitään ilmoituksia huudeta.
-
-            ━━━━━━━━━━━━━━━━━━━━━━
-            2. TÄRKEÄT LUVAT (ASETUKSET)
-            ━━━━━━━━━━━━━━━━━━━━━━
-            • TEKSTIVIESTIT JA YHTEYSTIEDOT:
-              Puhelin kysyy näitä lupia automaattisesti. Valitse aina "Salli".
-              (Tarvitaan, jotta sovellus havaitsee saapuvan viestin ja löytää nimen puhelimen osoitekirjasta).
-
-            • WHATSAPP, MESSENGER JA SÄHKÖPOSTI:
-              1. Paina päänäytön oranssia painiketta "SALLI ILMOITUKSET".
-              2. Puhelin siirtyy laitteen asetuksiin. Etsi listalta "Viesti-Ilmoitin".
-              3. Napauta sitä ja kytke lupa päälle (Salli).
-              4. Kun palaat sovellukseen, painike muuttuu vihreäksi.
-
-            * VINKKI (jos puhelin ilmoittaa 'Rajoitettu asetus'):
-              Mene: Puhelimen Asetukset ➔ Sovellukset ➔ Viesti-Ilmoitin ➔ Paina oikeasta yläkulmasta 3 pistettä ➔ Valitse "Salli rajoitetut asetukset". Tämän jälkeen luvan saa kytkettyä päälle.
-
-            ━━━━━━━━━━━━━━━━━━━━━━
-            3. VIESTIEN HUUTOLAUSEET JA LÄHETTÄJÄT
-            ━━━━━━━━━━━━━━━━━━━━━━
-            • TEKSTIVIESTI:
-              - Ennen nimeä: Esim. "VIESTI TULI "
-              - Nimen jälkeen: Esim. " LAITTOI VIESTIN" (tai jätä tyhjäksi).
-              - Tuntematon numero: Mitä huudetaan, jos numeroa ei löydy osoitekirjasta (esim. "VIESTI NUMEROSTA ").
-              (Voit muuttaa henkilön nimen tai lempinimen suoraan puhelimen omaan osoitekirjaan).
-
-            • WHATSAPP JA MESSENGER:
-              - Sovellus ilmoittaa aina saapuneen viestin lähettäjän (esim. "WHATSUP VIESTI Peksu" tai "MESSENGER VIESTI Matti").
-              - HUOMIO: Jos olet parhaillaan kirjoittelemassa kyseisessä sovelluksessa (sovellus on auki ruudulla), puhelin ei huuda ilmoitusta, koska näet viestin itse livenä.
-
-            • SÄHKÖPOSTI:
-              - Sovellus tunnistaa saapuneen sähköpostin ja huutaa lähettäjän nimen (esim. "SÄHKÖPOSTI Matti Meikäläinen").
-
-            ━━━━━━━━━━━━━━━━━━━━━━
-            4. TOISTO JA KUITTAUS
-            ━━━━━━━━━━━━━━━━━━━━━━
-            • TOISTOKERRAT JA -VÄLI:
-              Valitse, kuinka monta kertaa (1-10) ja kuinka usein (1-10 min) ilmoitus toistetaan, jos viestiä ei heti huomata.
-            • MITEN TOISTO SAMMUTETAAN:
-              Viestin toistohälytys kuittaantuu ja sammuu automaattisesti, kun viesti tai sähköposti avataan tai pyyhkäistään pois.
-
-            ━━━━━━━━━━━━━━━━━━━━━━
-            5. ÄÄNENVOIMAKKUUDEN SÄÄTÖ
-            ━━━━━━━━━━━━━━━━━━━━━━
-            • Ruudun alaosassa olevalla liukusäätimellä voit määrittää äänenvoimakkuuden (10 % – 100 %).
-            • Kokeile äänenvoimakkuutta painamalla "KOKEILE ÄÄNTÄ".
-
-            ━━━━━━━━━━━━━━━━━━━━━━
-            6. VIESTILOKI
-            ━━━━━━━━━━━━━━━━━━━━━━
-            • Paina päänäytöltä "LOKI"-painiketta.
-            • Lokista näet kaikki viestien lähettäjät, kuinka monta viestiä kukin on lähettänyt yhteensä ja minä päivinä.
-            • Lokin voi tyhjentää pitämällä "NOLLAA LOKI" -painiketta pohjassa yhden sekunnin ajan (estää vahinkopainallukset).
-
-            ━━━━━━━━━━━━━━━━━━━━━━
-            7. TALLENNUS JA KOKEILU
-            ━━━━━━━━━━━━━━━━━━━━━━
-            • Aivan ruudun alimmaisena on suuri sininen painike: "TALLENNA ASETUKSET".
-            • Paina "KOKEILE ÄÄNTÄ" testataksesi ääntä kaiuttimesta ja muista aina lopuksi painaa alhaalta "TALLENNA ASETUKSET"!
-        """.trimIndent()
-
-        val scrollView = ScrollView(this).apply {
-            setPadding(32, 24, 32, 24)
+    private fun palautaAlkuperainenHalytysAani() {
+        val palautettava = alkuperainenHalytysAani ?: return
+        alkuperainenHalytysAani = null
+        try {
+            val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
+            audioManager.setStreamVolume(AudioManager.STREAM_ALARM, palautettava, 0)
+        } catch (e: Exception) {
         }
-        val textView = TextView(this).apply {
-            text = ohjeTeksti
-            textSize = 15f
-            setTextColor(android.graphics.Color.parseColor("#212121"))
-            setLineSpacing(4f, 1.15f)
-        }
-        scrollView.addView(textView)
-
-        AlertDialog.Builder(this)
-            .setTitle("OHJE JA KÄYTTÖOPAS")
-            .setView(scrollView)
-            .setPositiveButton("SULJE OHJE") { dialog, _ ->
-                dialog.dismiss()
-            }
-            .show()
     }
 
     private fun pyydaLuvat() {
@@ -324,10 +255,27 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
             tts?.language = Locale("fi", "FI")
+            tts?.setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                    .build()
+            )
+            tts?.setOnUtteranceProgressListener(object : UtteranceProgressListener() {
+                override fun onStart(utteranceId: String?) {}
+                override fun onDone(utteranceId: String?) {
+                    masterSwitchHandler.post { palautaAlkuperainenHalytysAani() }
+                }
+                @Deprecated("Deprecated in Java")
+                override fun onError(utteranceId: String?) {
+                    masterSwitchHandler.post { palautaAlkuperainenHalytysAani() }
+                }
+            })
         }
     }
 
     override fun onDestroy() {
+        palautaAlkuperainenHalytysAani()
         tts?.shutdown()
         super.onDestroy()
     }
